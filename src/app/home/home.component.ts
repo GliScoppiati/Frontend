@@ -7,10 +7,13 @@ import { NgFor } from '@angular/common';
 import { delay } from 'rxjs';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
+import { SearchBarComponent } from '../../../projects/shared/src/public-api';
+import { SearchBarService } from '../../../projects/shared/src/public-api';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterOutlet, NgFor, CommonModule, CardModule, ButtonModule],
+  imports: [NgFor, CommonModule, CardModule, ButtonModule, SearchBarComponent],
+  standalone: true,
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -22,7 +25,9 @@ export class HomeComponent {
   profileButtonTag = 'Profilo';
   cocktailImgs: Set<string> = new Set();
 
-  constructor(private http: HttpClient, private primeng: PrimeNG) { }
+  constructor(private http: HttpClient,
+              private primeng: PrimeNG,
+              private searchService: SearchBarService) { }
 
   ngOnInit(): void {
     this.primeng.ripple.set(true); // to initialize primeng
@@ -34,11 +39,13 @@ export class HomeComponent {
     // if ()
   }
 
-
+  // ! this is temporary since we don't have a backend yet
+  // TODO: Add a delay to change the display of the images and the h2 every 5 seconds
   pickAllDrinks(): Set<string> {
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 15; i++) {
       const number: number = 11000 + i;
       const id: string = number.toString();
+      // TODO: Add api call to the backend
       this.http.get<{ drinks: { strDrinkThumb: string }[] }>(this.stringUrl + id)
       .pipe(delay(2000))
       .subscribe( response => {
