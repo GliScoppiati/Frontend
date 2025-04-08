@@ -1,0 +1,113 @@
+.buttons {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  .firstButton {
+    display: flex;
+    justify-content: right;
+
+    .little-message {
+      block-size: 10mm;
+      display: flex;
+      justify-content: left;
+      align-items: left;
+    }
+
+    .email-space {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      block-size: 8mm;
+
+      label {
+        font-size: w-24;
+        font-family: semibold;
+      }
+    }
+
+    .password-space {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      block-size: 20mm;
+
+      label {
+        font-size: w-24;
+        font-family: semibold;
+      }
+    }
+
+    .login-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+
+    }
+  }
+  .secondButton {
+    display: flex;
+    justify-content: right;
+
+    .little-message {
+      block-size: 10mm;
+      display: flex;
+      justify-content: left;
+      align-items: left;
+    }
+
+    .email-space {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      block-size: 8mm;
+
+      label {
+        font-size: w-24;
+        font-family: semibold;
+      }
+    }
+
+    .password-space {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      block-size: 20mm;
+
+      label {
+        font-size: w-24;
+        font-family: semibold;
+      }
+
+      .password-tips {
+        padding-left: 10px;
+        margin-left: 10px;
+        margin-top: 0;
+        margin-bottom: 0;
+        line-height: normal;
+      }
+    }
+
+    .card {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      block-size: 10mm;
+
+      .privacy-form {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        block-size: 5mm;
+      }
+    }
+
+    .register-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+
+    }
+  }
+}

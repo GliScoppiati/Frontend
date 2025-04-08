@@ -34,8 +34,7 @@ export class SearchBarComponent {
       }
     })
 
-    if (this.router.url != '/search') {
-      console.log('dio boiaaaaaaaaaaaa');
+    if (this.router.url !== '/search') {
       this.router.navigate(['/search'], { queryParams: { query: query, noResultsFound: this.noResultsFound } });
     }
   }

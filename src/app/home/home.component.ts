@@ -6,13 +6,13 @@ import { PrimeNG } from 'primeng/config';
 import { NgFor } from '@angular/common';
 import { delay } from 'rxjs';
 import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
 import { SearchBarComponent } from '../../../projects/shared/src/public-api';
 import { SearchBarService } from '../../../projects/shared/src/public-api';
+import { ProfileButtonComponent } from '../../../projects/shared/src/public-api';
 
 @Component({
   selector: 'app-home',
-  imports: [NgFor, CommonModule, CardModule, ButtonModule, SearchBarComponent],
+  imports: [NgFor, CommonModule, CardModule, SearchBarComponent, ProfileButtonComponent],
   standalone: true,
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
