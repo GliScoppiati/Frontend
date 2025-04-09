@@ -1,33 +1,37 @@
 <div class="buttons">
+  <p-toast />
   <div class="firstButton">
-    <p-button (click)="setLoginVisible()" [label]="loginButton" severity="primary">
+    <p-button *ngIf="!visibles['isLoggedIn']" (click)="setLoginVisible()" [label]="loginButton" severity="primary">
       <ng-template pTemplate="icon">
         <i class="pi pi-user"></i>
       </ng-template>
     </p-button>
-    <p-dialog [header]="loginButton" [modal]="true" [(visible)]="loginVisible" [style]="{ width: '25rem' }">
+    <p-dialog [header]="loginButton" [modal]="true" [(visible)]="visibles['loginDialogVisible']" (onHide)="resetForm()" [style]="{ width: '25rem' }" [contentStyle]="{ 'overflow': 'visible' }" [baseZIndex]="10000" [autoZIndex]="true">
       <span class="little-message">{{messages[0]}}</span>
       <div class="email-space">
           <label for="email">Email</label>
-          <input pInputText id="email" class="flex-auto" autocomplete="off" />
+          <form [formGroup]="credentialsForm">
+            <input pInputText formControlName="email" id="email" autocomplete="off" />
+          </form>
       </div>
       <div class="password-space">
           <label for="password">Password</label>
-          <input pInputText id="password" class="flex-auto" autocomplete="off" />
+          <form [formGroup]="credentialsForm">
+            <p-password formControlName="password" name="password" id="password" [toggleMask]="true" [feedback]="false" autocomplete="off" />
+          </form>
       </div>
       <div class="login-buttons">
           <p-button label="Cancel" severity="secondary" (click)="setLoginVisible()" />
-          <p-button [label]="loginButton" severity="primary" (click)="setLoginVisible()" (click)="sendLoginData()" />
+          <p-button [label]="loginButton" severity="primary" (click)="sendLoginData()" />
       </div>
     </p-dialog>
   </div>
   <div class="secondButton">
-    <p-toast></p-toast>
-    <p-button (click)="setRegisterVisible()" [label]="registerButton" severity="help"/>
+    <p-button *ngIf="!visibles['isLoggedIn']" (click)="setRegisterVisible()" [label]="registerButton" severity="help" />
     <p-dialog
       [header]="registerButton"
       [modal]="true"
-      [(visible)]="registerVisible"
+      [(visible)]="visibles['registerDialogVisible']"
       [style]="{ width: '25rem'}"
       [contentStyle]="{ 'overflow': 'visible' }"
       [baseZIndex]="10000"
@@ -64,13 +68,13 @@
       </div>
       <div class="register-buttons">
           <p-button label="Cancel" severity="secondary" (click)="setRegisterVisible()" />
-          <p-button
-            [label]="registerButton"
-            severity="primary"
-            [disabled]="privacyForm.invalid"
-            (click)="sendRegisterData()"/>
+          <p-button [label]="registerButton" severity="primary" [disabled]="privacyForm.invalid" (click)="sendRegisterData()"/>
       </div>
     </p-dialog>
+  </div>
+  <div class="profileButton">
+    <p-toast />
+    <p-split-button *ngIf="visibles['isLoggedIn']" label="Profile" [model]="items" />
   </div>
 </div>
 
