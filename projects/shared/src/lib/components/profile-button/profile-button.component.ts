@@ -67,7 +67,7 @@ export class ProfileButtonComponent implements OnInit {
     // * PROFILE BUTTON LIST
     this.items = [
       {
-        label: 'Profile',
+        label: 'Details',
         icon: 'pi pi-fw pi-user',
         url: '/profile',
       },
@@ -77,6 +77,11 @@ export class ProfileButtonComponent implements OnInit {
         url: '/profile/settings',
         // TODO: learn how to add settings to the url from a button on the profile page
         //   this.router.navigate(['/profile/settings']);
+      },
+      {
+        label: 'Favourites',
+        icon: 'pi pi-fw pi-star',
+        url: '/profile/favourites',
       },
       {
         label: 'Privacy',
