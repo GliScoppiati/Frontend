@@ -20,6 +20,7 @@
       align-items: center;
       gap: 8px;
       block-size: 8mm;
+      margin-top: 5px;
 
       label {
         font-size: w-24;
@@ -57,11 +58,47 @@
       align-items: left;
     }
 
+    .name-space {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      block-size: 14mm;
+
+      label {
+        font-size: w-24;
+        font-family: semibold;
+      }
+    }
+
+    .surname-space {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      block-size: 14mm;
+
+      label {
+        font-size: w-24;
+        font-family: semibold;
+      }
+    }
+
+    .birth-space {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      block-size: 14mm;
+
+      label {
+        font-size: w-24;
+        font-family: semibold;
+      }
+    }
+
     .email-space {
       display: flex;
       align-items: center;
       gap: 8px;
-      block-size: 8mm;
+      block-size: 14mm;
 
       label {
         font-size: w-24;
@@ -73,7 +110,8 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      block-size: 20mm;
+      block-size: 14mm;
+      margin-bottom: 10px;
 
       label {
         font-size: w-24;
@@ -114,6 +152,5 @@
   .profileButton {
     display: flex;
     justify-content: center;
-
   }
 }

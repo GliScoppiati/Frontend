@@ -11,6 +11,8 @@ import { MenuItem, MessageService } from 'primeng/api';
 import { AuthService } from '../../services/auth.service';
 import { SplitButton } from 'primeng/splitbutton';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators, FormsModule, FormBuilder } from '@angular/forms';
+import { DatePickerModule } from 'primeng/datepicker';
+import { FloatLabel } from 'primeng/floatlabel';
 import { NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -18,7 +20,8 @@ import { Router } from '@angular/router';
   selector: 'lib-profile-button',
   imports: [ButtonModule, Dialog, InputTextModule, AvatarModule,
             CheckboxModule, ReactiveFormsModule, FormsModule,
-            PasswordModule, DividerModule, ToastModule, NgIf, SplitButton],
+            PasswordModule, DividerModule, ToastModule, NgIf, SplitButton,
+            DatePickerModule, FloatLabel],
   standalone: true,
   templateUrl: './profile-button.component.html',
   styleUrl: './profile-button.component.scss',
@@ -61,6 +64,9 @@ export class ProfileButtonComponent implements OnInit {
     private router: Router)
   {
     this.credentialsForm = this.formBuilder.group({
+      name: ['', Validators.required],
+      surname: ['', Validators.required],
+      birthDate: ['', Validators.required],
       email: ['', Validators.required],
       password: ['', Validators.required]
     })
