@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, importProvidersFrom } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { SearchBarComponent } from '../../../projects/shared/src/public-api';
+import { AuthService, ProfileButtonComponent } from '../../../projects/shared/src/public-api';
 
 @Component({
   selector: 'app-search',
-  imports: [SearchBarComponent],
+  imports: [ProfileButtonComponent],
+  standalone: true,
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss'
 })
@@ -12,7 +13,10 @@ export class SearchComponent {
   searchQuery: string = '';
   noResultsFound: boolean = false;
 
-  constructor(private route: ActivatedRoute) { }
+  constructor(
+    private route: ActivatedRoute,
+    private authService: AuthService,
+  ) { }
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
@@ -31,6 +35,6 @@ export class SearchComponent {
   }
 
   alcoholFilter(alcoholQuery: string) {
-    
+
   }
 }

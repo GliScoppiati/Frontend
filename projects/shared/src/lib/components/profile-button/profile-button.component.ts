@@ -16,6 +16,11 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 
+// TODO: look for texts that need to be dynamic since they will be translated
+// TODO: check post and get requests for login and register and remove the search bar if not logged in (with Stefano)
+// TODO: start to create search page
+// TODO: create home button
+
 @Component({
   selector: 'lib-profile-button',
   imports: [ButtonModule, Dialog, InputTextModule, AvatarModule,
@@ -28,34 +33,51 @@ import { Router } from '@angular/router';
   providers: [MessageService]
 })
 export class ProfileButtonComponent implements OnInit {
-
-  // TODO: fix and add things to the login form
-  // TODO: add auth service for login and register
-
     // Button names
   registerButton: string = 'Sign Up';
   loginButton: string = 'Login';
   profileButton: string = 'Profile';
 
+  labels: { [key: string]: string } = {
+    email: 'Email',
+    password: 'Password',
+    name: 'Name',
+    surname: 'Surname',
+    birthDate: 'Birth Date',
+  }
+
+  policy: { [key: string]: string } = {
+
+  }
+
+  passwordTips: { [key: string]: string } = {
+    minLength: 'At least 8 characters long',
+    upperCase: 'At least one uppercase letter',
+    lowerCase: 'At least one lowercase letter',
+    number: 'At least one number',
+  }
+
     // Messages for login and register
-  messages: string[] = [
-    'Please login with your credentials',
-    'Please insert email and password to register',
-    'I accept the terms and conditions.',
-  ];
+  messages: {[key: string]: string} = {
+    login: 'Please login with your credentials',
+    register: 'Please insert your informations to register',
+    terms: 'I accept the terms and conditions.',
+  };
 
     // Booleans
   visibles: { [key: string]: boolean } = {
     isLoggedIn: false,
     loginDialogVisible: false,
     registerDialogVisible: false,
+    privacyDialogVisible: false,
   };
 
   items: MenuItem[];
 
     // Form groups
   privacyForm!: FormGroup;
-  credentialsForm!: FormGroup;
+  loginForm!: FormGroup;
+  registerForm!: FormGroup;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -63,14 +85,22 @@ export class ProfileButtonComponent implements OnInit {
     private authService: AuthService,
     private router: Router)
   {
-    this.credentialsForm = this.formBuilder.group({
+    this.registerForm = this.formBuilder.group({
       name: ['', Validators.required],
       surname: ['', Validators.required],
       birthDate: ['', Validators.required],
       email: ['', Validators.required],
       password: ['', Validators.required]
-    })
+    });
+
+    this.loginForm = this.formBuilder.group({
+      email: ['', Validators.required],
+      password: ['', Validators.required]
+    });
+
     // * PROFILE BUTTON LIST
+    // TODO: finish this list
+    // TODO: add translation as gpt suggested, create the json files for translation
     this.items = [
       {
         label: 'Details',
@@ -93,8 +123,7 @@ export class ProfileButtonComponent implements OnInit {
         label: 'Privacy',
         icon: 'pi pi-fw pi-shield',
         command: () => {
-          // TODO: add a privacy policy dialog when this is clicked.
-          // showPrivacyPolicy();
+          this.showPolicy();
         }
       },
       {
@@ -105,6 +134,8 @@ export class ProfileButtonComponent implements OnInit {
             .subscribe({
               next: (response: any) => {
                 if (response) {
+                  this.authService.clearTokens();
+                  this.visibles['isLoggedIn'] = false;
                   this.messageService.add({
                     severity: 'success',
                     summary: 'Logout successful',
@@ -124,27 +155,84 @@ export class ProfileButtonComponent implements OnInit {
                   closable: true,
                 });
               }
-            })
+            });
           this.visibles['isLoggedIn'] = false;
         }
       }
     ];
   }
 
+
+  // * INIT FUNCTION
   ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      if (this.authService.isTokenExpired(this.authService.getAccessToken()!)) {
+        if (this.authService.getRefreshToken()) {
+          this.authService.refresh(this.authService.getRefreshToken()!)
+          .subscribe({
+              next: (response: any) => {
+                if (response) {
+                  this.authService.saveTokens(response.accessToken, response.refreshToken.toString());
+                  this.visibles['isLoggedIn'] = true;
+                  this.messageService.add({
+                    severity: 'success',
+                    summary: 'Session refreshed',
+                    detail: 'You can now access your profile',
+                    life: 3000,
+                    closable: true,
+                  });
+                }
+              },
+              error: (error: any) => {
+                this.authService.clearTokens();
+                this.visibles['isLoggedIn'] = false;
+                console.error('Session refresh failed', error);
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Session refresh failed',
+                  detail: 'Please try again later',
+                  life: 5000,
+                  closable: true,
+                });
+              }
+          });
+        } else {
+          this.authService.clearTokens();
+          this.visibles['isLoggedIn'] = false;
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Session expired',
+            detail: 'Please login again',
+            life: 3000,
+            closable: true,
+          });
+        }
+      } else {
+        this.visibles['isLoggedIn'] = true;
+      }
+    }
     this.privacyForm = new FormGroup({
       privacyCheck: new FormControl<boolean>(false, Validators.requiredTrue)
     });
   }
 
+  showPolicy() {
+    this.visibles['privacyDialogVisible'] = !this.visibles['privacyDialogVisible'];
+    if (this.visibles['privacyDialogVisible']) {
+      this.privacyForm.reset({ privacyCheck: false });
+    }
+    console.log('Privacy policy is visible', this.visibles['privacyDialogVisible']);
+  }
+
   resetForm() {
-    this.credentialsForm.reset();
+    this.registerForm.reset();
+    this.loginForm.reset();
   }
 
   setLoginVisible() {
     this.visibles['loginDialogVisible'] = !this.visibles['loginDialogVisible'];
     if (this.visibles['loginDialogVisible']) {
-      this.credentialsForm.reset();
+      this.loginForm.reset();
       this.privacyForm.reset({ privacyCheck: false });
     }
     console.log('Login form is visible', this.visibles['loginDialogVisible']);
@@ -154,12 +242,13 @@ export class ProfileButtonComponent implements OnInit {
   setRegisterVisible() {
     this.visibles['registerDialogVisible'] = !this.visibles['registerDialogVisible'];
     if (this.visibles['registerDialogVisible']) {
-      this.credentialsForm.reset();
+      this.registerForm.reset();
       this.privacyForm.reset({ privacyCheck: false });
     }
   }
 
   showError() {
+    console.error('Please fill in all the fields');
     this.messageService.add({
       severity: 'warn',
       summary: 'Missing fields',
@@ -169,26 +258,18 @@ export class ProfileButtonComponent implements OnInit {
     });
   }
 
-  checkForEmptyFields(): boolean {
-    if (this.credentialsForm.invalid) {
-      console.error('Please fill in all the fields');
-      this.showError();
-      return true;
-    }
-    return false;
-  }
-
   // * LOGIN
   sendLoginData() {
-    if (this.checkForEmptyFields())
-      return;
-    console.log('Login data sent', this.credentialsForm.controls['email'].value, this.credentialsForm.controls['password'].value);
+    if (this.loginForm.invalid)
+      return this.showError();
+    console.log('Login data sent', this.loginForm.controls['email'].value, this.loginForm.controls['password'].value);
     this.authService.login(
-      this.credentialsForm.controls['email'].value,
-      this.credentialsForm.controls['password'].value)
+      this.loginForm.controls['email'].value,
+      this.loginForm.controls['password'].value)
       .subscribe({
         next: (response: any) => {
           if (response) {
+            this.authService.saveTokens(response.accessToken, response.refreshToken.toString());
             this.messageService.add({
               severity: 'success',
               summary: 'Login successful',
@@ -217,13 +298,20 @@ export class ProfileButtonComponent implements OnInit {
 
   // * REGISTRATION
   sendRegisterData() {
-    if (this.checkForEmptyFields())
-      return;
-    console.log('Register data sent', this.credentialsForm.controls['email'].value, this.credentialsForm.controls['password'].value);
+    if (this.registerForm.invalid)
+      return this.showError();
+    console.log('Register data sent', this.registerForm.controls['email'].value,
+        this.registerForm.controls['password'].value,
+        this.registerForm.controls['name'].value,
+        this.registerForm.controls['surname'].value,
+        this.registerForm.controls['birthDate'].value);
     // ! to comment for profile button check
     this.authService.register(
-      this.credentialsForm.controls['email'].value,
-      this.credentialsForm.controls['password'].value)
+      this.registerForm.controls['name'].value,
+      this.registerForm.controls['surname'].value,
+      this.registerForm.controls['birthDate'].value,
+      this.registerForm.controls['email'].value,
+      this.registerForm.controls['password'].value)
       .subscribe({
         next: (response: any) => {
           if (response) {
@@ -247,8 +335,7 @@ export class ProfileButtonComponent implements OnInit {
             closable: true,
           });
         }
-
-      })
+      });
     this.visibles['isLoggedIn'] = true;
     this.setRegisterVisible();
   }

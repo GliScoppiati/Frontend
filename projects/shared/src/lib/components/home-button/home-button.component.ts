@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
   selector: 'lib-home-button',
   imports: [],
   templateUrl: './home-button.component.html',
-  styleUrl: './home-button.component.css'
+  styleUrl: './home-button.component.scss'
 })
 export class HomeButtonComponent {
 

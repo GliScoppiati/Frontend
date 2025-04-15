@@ -7,21 +7,21 @@
       </ng-template>
     </p-button>
     <p-dialog [header]="loginButton" [modal]="true" [(visible)]="visibles['loginDialogVisible']" (onHide)="resetForm()" [style]="{ width: '25rem' }" [contentStyle]="{ 'overflow': 'visible' }" [baseZIndex]="10000" [autoZIndex]="true">
-      <span class="little-message">{{messages[0]}}</span>
+      <span class="little-message">{{messages['login']}}</span>
       <div class="email-space">
         <p-floatlabel variant="on">
-          <form [formGroup]="credentialsForm">
+          <form [formGroup]="loginForm">
             <input pInputText formControlName="email" id="email" autocomplete="off" />
           </form>
-          <label for="on_label">Email</label>
+          <label for="on_label">{{ labels['email'] }}</label>
         </p-floatlabel>
       </div>
       <div class="password-space">
         <p-floatlabel variant="on">
-          <form [formGroup]="credentialsForm">
+          <form [formGroup]="loginForm">
             <p-password formControlName="password" name="password" id="password" [toggleMask]="true" [feedback]="false" autocomplete="off" />
           </form>
-          <label for="on_label">Password</label>
+          <label for="on_label">{{ labels['password']}} </label>
         </p-floatlabel>
       </div>
       <div class="login-buttons">
@@ -41,61 +41,61 @@
       [baseZIndex]="10000"
       [autoZIndex]="true"
       (onHide)="resetForm()">
-      <span class="little-message">{{messages[1]}}</span>
+      <span class="little-message">{{messages['register']}}</span>
       <div class="name-space">
           <p-floatlabel variant="on">
-            <form [formGroup]="credentialsForm">
+            <form [formGroup]="registerForm">
               <input pInputText formControlName="name" name="name" id="name" autocomplete="off" />
             </form>
-            <label for="on_label">Name</label>
+            <label for="on_label">{{ labels['name'] }}</label>
         </p-floatlabel>
         </div>
         <div class="surname-space">
           <p-floatlabel variant="on">
-            <form [formGroup]="credentialsForm">
+            <form [formGroup]="registerForm">
               <input pInputText formControlName="surname" name="surname" id="surname" autocomplete="off" />
             </form>
-            <label for="on_label">Surname</label>
+            <label for="on_label">{{labels['surname']}}</label>
           </p-floatlabel>
         </div>
         <div class="birth-space">
           <p-floatlabel variant="on">
-            <form [formGroup]="credentialsForm">
+            <form [formGroup]="registerForm">
               <p-datepicker formControlName="birthDate" view="month" dateFormat="mm/yy" [readonlyInput]="true" />
             </form>
-            <label for="on_label">Birthdate</label>
+            <label for="on_label">{{labels['birthDate']}}</label>
           </p-floatlabel>
         </div>
         <div class="email-space">
           <p-floatlabel variant="on">
-            <form [formGroup]="credentialsForm">
+            <form [formGroup]="registerForm">
               <input pInputText formControlName="email" name="email" id="email" autocomplete="off" />
             </form>
-            <label for="on_label">Email</label>
+            <label for="on_label">{{labels['email']}}</label>
           </p-floatlabel>
         </div>
         <div class="password-space">
           <p-floatlabel variant="on">
-            <form [formGroup]="credentialsForm">
+            <form [formGroup]="registerForm">
               <p-password formControlName="password" name="password" id="password" [toggleMask]="true" autocomplete="off">
                 <ng-template #footer>
                   <p-divider />
                   <ul class="password-tips">
-                    <li>At least one lowercase</li>
-                    <li>At least one uppercase</li>
-                    <li>At least one numeric</li>
-                    <li>Minimum 8 characters</li>
+                    <li>{{passwordTips['lowerCase']}} </li>
+                    <li>{{passwordTips['upperCase']}} </li>
+                    <li>{{passwordTips['number']}} </li>
+                    <li>{{passwordTips['minLength']}} </li>
                   </ul>
                 </ng-template>
               </p-password>
             </form>
-            <label for="on_label">Password</label>
+            <label for="on_label">{{labels['password']}} </label>
           </p-floatlabel>
         </div>
         <div class="card">
           <form class="privacy-form" [formGroup]="privacyForm">
             <p-checkbox formControlName="privacyCheck" binary="true" value="Consense" inputId="privacyForm" />
-            <label for="privacyForm">{{messages[2]}}</label>
+            <label for="privacyForm">{{messages['terms']}}</label>
           </form>
         </div>
       <div class="register-buttons">
@@ -106,7 +106,33 @@
   </div>
   <div class="profileButton">
     <p-toast />
-    <p-split-button *ngIf="visibles['isLoggedIn']" label="Profile" [model]="items" />
+    <p-split-button class="profile-menu" *ngIf="visibles['isLoggedIn']" label="Profile" [model]="items" />
+    <p-dialog
+      header="Privacy Policy"
+      [(visible)]="visibles['privacyDialogVisible']"
+      [modal]="true"
+      [style]="{ width: '40rem' }"
+      [dismissableMask]="true"
+      [closable]="true">
+      <div class="privacy-content">
+        <p><strong>Last Updated:</strong> April 14, 2025</p>
+        <p>
+          We collect your personal data such as name, email, and date of birth during registration. This information is used solely for authentication and profile purposes.
+        </p>
+        <p>
+          Your data is securely stored and never shared with third parties without consent. Passwords are hashed before being saved.
+        </p>
+        <p>
+          We use cookies or tokens (e.g. JWT) to maintain your session, but these are stored only in your browser and are not shared externally.
+        </p>
+        <p>
+          You may request deletion or modification of your data at any time by contacting us.
+        </p>
+        <p>
+          For more details or to exercise your rights under the GDPR (right to access, modify, erase, etc.), please contact our support team.
+        </p>
+      </div>
+    </p-dialog>
   </div>
 </div>
 

@@ -8,6 +8,7 @@ import { IconField } from 'primeng/iconfield';
 import { FormsModule } from '@angular/forms';
 import { SearchBarService } from '../../services/search-bar.service';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'lib-search-bar',
@@ -20,7 +21,9 @@ export class SearchBarComponent {
   noResultsFound: boolean = false;
   query: string = '';
 
-  constructor(private searchService: SearchBarService, private router: Router) {}
+  constructor(
+    private searchService: SearchBarService,
+    private router: Router) {}
 
   search(query : string): void {
     if (!query.trim()) return;
