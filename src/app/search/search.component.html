@@ -9,14 +9,33 @@
   </div>
 </div>
 <div class="search-bar">
-
+  <p-floatlabel variant="on" class="search-label">
+    <p-iconfield iconPosition="left">
+      <p-inputicon>
+        <i class="pi pi-search"></i>
+      </p-inputicon>
+      <form [formGroup]="searchBar">
+        <input pInputText formControlName="search" (keydown.enter)="searchQuery()" class="search-input" />
+      </form>
+    </p-iconfield>
+    <label for="on_label">Search your cocktail</label>
+  </p-floatlabel>
 </div>
 <div class="filters">
-  <div class="to-choose">
-
-  </div>
-  <div class="to-see">
-
+  <p-floatlabel variant="on" class="filter-label">
+    <form [formGroup]="filterGroup" class="filter-form-horizontal">
+      <p-multiselect [options]="filterOptions['ingredients']" formControlName="ingredients" [placeholder]="placeholders['ingredients']" optionLabel="name" [displaySelectedLabel]="false" />
+      <p-multiselect [options]="filterOptions['glass']" formControlName="glass" [placeholder]="placeholders['glass']" optionLabel="name" [displaySelectedLabel]="false" />
+      <p-multiselect [options]="filterOptions['type']" formControlName="type" [placeholder]="placeholders['type']" optionLabel="name" [displaySelectedLabel]="false" />
+      <p-multiselect [options]="filterOptions['alcoholic']" formControlName="alcoholic" [placeholder]="placeholders['alcoholic']" optionLabel="name" [displaySelectedLabel]="false" />
+    </form>
+  </p-floatlabel>
+  <div class="combined-selected" >
+    <label style="font-weight: bold;">Selected Filters:</label>
+    <div class="selected-filters">
+      <p-chip *ngFor="let item of getAllSelectedFilters()" [label]="item" [removable]="true" (onRemove)="removeFilter(item)" class="span-filter" severity="info">
+      </p-chip>
+    </div>
   </div>
 </div>
 <div class="card-section">

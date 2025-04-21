@@ -66,6 +66,14 @@
             <label for="on_label">{{labels['birthDate']}}</label>
           </p-floatlabel>
         </div>
+        <div class="username-space">
+          <p-floatlabel variant="on">
+            <form [formGroup]="registerForm">
+              <input pInputText formControlName="username" name="username" id="username" autocomplete="off" />
+            </form>
+            <label for="on_label">{{labels['username']}}</label>
+          </p-floatlabel>
+        </div>
         <div class="email-space">
           <p-floatlabel variant="on">
             <form [formGroup]="registerForm">
@@ -95,7 +103,9 @@
         <div class="card">
           <form class="privacy-form" [formGroup]="privacyForm">
             <p-checkbox formControlName="privacyCheck" binary="true" value="Consense" inputId="privacyForm" />
-            <label for="privacyForm">{{messages['terms']}}</label>
+            <label for="privacyForm">{{messages['GDPR']}}</label>
+            <p-checkbox formControlName="profilingCheck" binary="true" value="Profiling" inputId="profilingForm" />
+            <label for="profilingForm">{{messages['profiling']}}</label>
           </form>
         </div>
       <div class="register-buttons">

@@ -8,4 +8,7 @@ import { Component } from '@angular/core';
 })
 export class ProfileComponent {
 
+  // TODO: add the update profile function
+
+
 }

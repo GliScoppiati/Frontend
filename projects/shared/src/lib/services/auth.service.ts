@@ -9,6 +9,7 @@ import { jwtDecode } from 'jwt-decode';
 export class AuthService {
   // TODO: Add the backend URL to the environment file
   private backendUrl: string = 'http://localhost:5000/auth/api/auth';
+  private profileUrl: string = 'http://localhost:5000/userprofile/api/userprofile';
   private loggedIn = new BehaviorSubject<boolean>(this.isLoggedIn());
   loggedIn$ = this.loggedIn.asObservable();
 
@@ -18,8 +19,12 @@ export class AuthService {
     return this.http.post(`${this.backendUrl}/login`, { email, password });
   }
 
-  register(name: string, surname: string, birthDate: string, email: string, password: string): Observable<any> {
-    return this.http.post(`${this.backendUrl}/register`, { name, surname, birthDate, email, password });
+  register(username: string, email: string, password: string): Observable<any> {
+    return this.http.post(`${this.backendUrl}/register`, { username, email, password });
+  }
+
+  updateProfile(name: string, surname: string, birthDate: string, privacy:  boolean, profiling: boolean): Observable<any> {
+    return this.http.put(`${this.profileUrl}${this.getUserId()}`, { name, surname, birthDate, privacy, profiling });
   }
 
   logout(): Observable<any> {
@@ -34,13 +39,18 @@ export class AuthService {
     return this.http.get(`${this.backendUrl}/profile`);
   }
 
-  saveTokens(accessToken: string, refreshToken: string): void {
-    sessionStorage.setItem('accessToken', accessToken);
+  saveTokens(JwtToken: string, refreshToken: string, userId: string): void {
+    sessionStorage.setItem('userId', userId);
+    sessionStorage.setItem('JwtToken', JwtToken);
     sessionStorage.setItem('refreshToken', refreshToken);
   }
 
-  getAccessToken(): string | null {
-    return sessionStorage.getItem('accessToken');
+  getUserId(): string | null {
+    return sessionStorage.getItem('userId');
+  }
+
+  getJwtToken(): string | null {
+    return sessionStorage.getItem('JwtToken');
   }
 
   getRefreshToken(): string | null {
@@ -48,7 +58,8 @@ export class AuthService {
   }
 
   clearTokens(): void {
-    sessionStorage.removeItem('accessToken');
+    sessionStorage.removeItem('userId');
+    sessionStorage.removeItem('JwtToken');
     sessionStorage.removeItem('refreshToken');
   }
 
@@ -60,8 +71,8 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    const accessToken = this.getAccessToken();
-    return !!accessToken;
+    const JwtToken = this.getJwtToken();
+    return !!JwtToken;
   }
 
 

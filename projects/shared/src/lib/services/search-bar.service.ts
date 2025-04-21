@@ -8,7 +8,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 export class SearchBarService {
   // TODO: change the apiUrl with call to backend
 
-  private apiBackendUrl = 'http://localhost:4201/api/cocktails?name=';
+  private apiBackendUrl = 'http://localhost:5000/api/cocktails?name=';
   private apiUrl = 'https://www.thecocktaildb.com/api/json/v1/1/search.php?s=';
 
   constructor(private http: HttpClient) {}

@@ -94,6 +94,18 @@
       }
     }
 
+    .username-space {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      block-size: 14mm;
+
+      label {
+        font-size: w-24;
+        font-family: semibold;
+      }
+    }
+
     .email-space {
       display: flex;
       align-items: center;
@@ -131,9 +143,18 @@
       display: flex;
       justify-content: space-between;
       gap: 10px;
-      block-size: 10mm;
+      block-size: 25mm;
 
       .privacy-form {
+        margin-top: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        block-size: 5mm;
+      }
+
+      .profiling-form {
+        margin-top: 15px;
         display: flex;
         align-items: center;
         gap: 10px;

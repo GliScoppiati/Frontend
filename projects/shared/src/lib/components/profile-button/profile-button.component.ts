@@ -39,6 +39,7 @@ export class ProfileButtonComponent implements OnInit {
   profileButton: string = 'Profile';
 
   labels: { [key: string]: string } = {
+    username: 'Username',
     email: 'Email',
     password: 'Password',
     name: 'Name',
@@ -61,7 +62,8 @@ export class ProfileButtonComponent implements OnInit {
   messages: {[key: string]: string} = {
     login: 'Please login with your credentials',
     register: 'Please insert your informations to register',
-    terms: 'I accept the terms and conditions.',
+    GDPR: `I agree to the Privacy Policy and the processing of my personal data under GDPR.`,
+    profiling: `I agree to the use of my data for personalized content and offers.`,
   };
 
     // Booleans
@@ -89,6 +91,7 @@ export class ProfileButtonComponent implements OnInit {
       name: ['', Validators.required],
       surname: ['', Validators.required],
       birthDate: ['', Validators.required],
+      username: ['', Validators.required],
       email: ['', Validators.required],
       password: ['', Validators.required]
     });
@@ -166,13 +169,13 @@ export class ProfileButtonComponent implements OnInit {
   // * INIT FUNCTION
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
-      if (this.authService.isTokenExpired(this.authService.getAccessToken()!)) {
+      if (this.authService.isTokenExpired(this.authService.getJwtToken()!)) {
         if (this.authService.getRefreshToken()) {
           this.authService.refresh(this.authService.getRefreshToken()!)
           .subscribe({
               next: (response: any) => {
                 if (response) {
-                  this.authService.saveTokens(response.accessToken, response.refreshToken.toString());
+                  this.authService.saveTokens(response.token, response.refreshToken.toString(), response.userId);
                   this.visibles['isLoggedIn'] = true;
                   this.messageService.add({
                     severity: 'success',
@@ -212,7 +215,8 @@ export class ProfileButtonComponent implements OnInit {
       }
     }
     this.privacyForm = new FormGroup({
-      privacyCheck: new FormControl<boolean>(false, Validators.requiredTrue)
+      privacyCheck: new FormControl<boolean>(false, Validators.requiredTrue),
+      profilingCheck: new FormControl<boolean>(false)
     });
   }
 
@@ -269,7 +273,7 @@ export class ProfileButtonComponent implements OnInit {
       .subscribe({
         next: (response: any) => {
           if (response) {
-            this.authService.saveTokens(response.accessToken, response.refreshToken.toString());
+            this.authService.saveTokens(response.token, response.refreshToken.toString(), response.userId);
             this.messageService.add({
               severity: 'success',
               summary: 'Login successful',
@@ -277,8 +281,8 @@ export class ProfileButtonComponent implements OnInit {
               life: 3000,
               closable: true,
             });
+            this.visibles['isLoggedIn'] = true;
           }
-          this.visibles['isLoggedIn'] = true;
         },
         error: (error: any) => {
           console.error('Login failed', error);
@@ -302,14 +306,13 @@ export class ProfileButtonComponent implements OnInit {
       return this.showError();
     console.log('Register data sent', this.registerForm.controls['email'].value,
         this.registerForm.controls['password'].value,
+        this.registerForm.controls['username'].value,
         this.registerForm.controls['name'].value,
         this.registerForm.controls['surname'].value,
         this.registerForm.controls['birthDate'].value);
     // ! to comment for profile button check
     this.authService.register(
-      this.registerForm.controls['name'].value,
-      this.registerForm.controls['surname'].value,
-      this.registerForm.controls['birthDate'].value,
+      this.registerForm.controls['username'].value,
       this.registerForm.controls['email'].value,
       this.registerForm.controls['password'].value)
       .subscribe({
@@ -322,6 +325,28 @@ export class ProfileButtonComponent implements OnInit {
               life: 3000,
               closable: true,
             });
+            this.authService.saveTokens(response.token, response.refreshToken.toString(), response.userId);
+            // * Updating prrofile data when registering to fill the fields
+            this.authService.updateProfile(
+              this.registerForm.controls['name'].value,
+              this.registerForm.controls['surname'].value,
+              this.registerForm.controls['birthDate'].value,
+              this.privacyForm.controls['privacyCheck'].value,
+              this.privacyForm.controls['profilingCheck'].value)
+              .subscribe({
+                next: (response: any) => {},
+                error: (error: any) => {
+                  console.error('Profile update failed', error);
+                  this.messageService.add({
+                    severity: 'error',
+                    summary: 'Profile update failed',
+                    detail: 'Please try again later',
+                    life: 5000,
+                    closable: true,
+                  });
+                }
+              });
+            this.sendLoginData();
           }
           this.visibles['isLoggedIn'] = true;
         },
