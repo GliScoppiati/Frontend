@@ -100,10 +100,14 @@
             <label for="on_label">{{labels['password']}} </label>
           </p-floatlabel>
         </div>
-        <div class="card">
+        <div class="privacy">
           <form class="privacy-form" [formGroup]="privacyForm">
             <p-checkbox formControlName="privacyCheck" binary="true" value="Consense" inputId="privacyForm" />
             <label for="privacyForm">{{messages['GDPR']}}</label>
+          </form>
+        </div>
+        <div class="profiling">
+          <form [formGroup]="privacyForm">
             <p-checkbox formControlName="profilingCheck" binary="true" value="Profiling" inputId="profilingForm" />
             <label for="profilingForm">{{messages['profiling']}}</label>
           </form>
@@ -125,21 +129,9 @@
       [dismissableMask]="true"
       [closable]="true">
       <div class="privacy-content">
-        <p><strong>Last Updated:</strong> April 14, 2025</p>
-        <p>
-          We collect your personal data such as name, email, and date of birth during registration. This information is used solely for authentication and profile purposes.
-        </p>
-        <p>
-          Your data is securely stored and never shared with third parties without consent. Passwords are hashed before being saved.
-        </p>
-        <p>
-          We use cookies or tokens (e.g. JWT) to maintain your session, but these are stored only in your browser and are not shared externally.
-        </p>
-        <p>
-          You may request deletion or modification of your data at any time by contacting us.
-        </p>
-        <p>
-          For more details or to exercise your rights under the GDPR (right to access, modify, erase, etc.), please contact our support team.
+        <p><strong>{{ lastUpdated }}</strong></p>
+        <p *ngFor="let section of sections">
+          {{ section }}
         </p>
       </div>
     </p-dialog>

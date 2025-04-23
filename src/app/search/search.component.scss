@@ -1,27 +1,43 @@
 .search-bar {
-  display: auto;
   width: 100%;
-  padding: 0 100px; // creates space from left/right edges
+  padding: 0 100px;
   margin-top: 50px;
-  box-sizing: border-box; // ensures padding doesn't overflow
-  justify-content: center;
-  align-items: center;
+  box-sizing: border-box;
 
-  .search-button {
-    padding: 10px 20px;
+  .search-form {
+    display: flex;
+    width: 100%;
   }
 
   .search-label {
+    flex: 1;
     font-size: 1.2em;
-    min-width: 200px;
+  }
+
+  .input-wrapper {
+    position: relative;
+    width: 100%;
   }
 
   .search-input {
     width: 100%;
-    min-width: 200px;
     padding-left: 35px;
+    padding-right: 50px; // room for the button inside
+  }
+
+  .inline-button {
+    position: absolute;
+    right: 1px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 95%;
+    // padding: 0 10px;
+    border-radius: 4px;
+    z-index: 1;
   }
 }
+
+
 
 .filters {
   display: auto;

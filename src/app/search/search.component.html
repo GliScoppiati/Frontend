@@ -9,17 +9,18 @@
   </div>
 </div>
 <div class="search-bar">
-  <p-floatlabel variant="on" class="search-label">
-    <p-iconfield iconPosition="left">
-      <p-inputicon>
-        <i class="pi pi-search"></i>
-      </p-inputicon>
-      <form [formGroup]="searchBar">
-        <input pInputText formControlName="search" (keydown.enter)="searchQuery()" class="search-input" />
-      </form>
-    </p-iconfield>
-    <label for="on_label">Search your cocktail</label>
-  </p-floatlabel>
+  <form [formGroup]="searchBar" class="search-form" (ngSubmit)="searchQuery()">
+    <p-floatlabel variant="on" class="search-label">
+      <p-iconfield iconPosition="left" class="input-wrapper">
+        <p-inputicon>
+          <i class="pi pi-globe"></i>
+        </p-inputicon>
+        <input pInputText formControlName="query" class="search-input" />
+        <p-button type="submit" icon="pi pi-search" class="inline-button" severity="secondary"></p-button>
+      </p-iconfield>
+      <label for="on_label">Search your cocktail</label>
+    </p-floatlabel>
+  </form>
 </div>
 <div class="filters">
   <p-floatlabel variant="on" class="filter-label">

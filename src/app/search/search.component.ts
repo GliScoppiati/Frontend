@@ -52,6 +52,10 @@ export class SearchComponent implements OnInit {
   glassesUrl: string = 'https://www.thecocktaildb.com/api/json/v1/1/list.php?g=list';
   ingredientsUrl: string = 'https://www.thecocktaildb.com/api/json/v1/1/list.php?i=list';
   alcoholicUrl: string = 'https://www.thecocktaildb.com/api/json/v1/1/list.php?a=list';
+  ingFilterUrl: string = 'https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=';
+  categoryFilterUrl: string = 'https://www.thecocktaildb.com/api/json/v1/1/filter.php?c=';
+  glassFilterUrl: string = 'https://www.thecocktaildb.com/api/json/v1/1/filter.php?g=';
+  alcohoolFilterUrl: string = 'https://www.thecocktaildb.com/api/json/v1/1/filter.php?a=';
 
   constructor(
     private route: ActivatedRoute,
@@ -60,7 +64,7 @@ export class SearchComponent implements OnInit {
     private formBuilder: FormBuilder
   ) {
     this.searchBar = this.formBuilder.group({
-      search: ['', Validators.required],
+      query: [''],
     });
     this.filterGroup = this.formBuilder.group({
       ingredients: [[]],
@@ -90,14 +94,12 @@ export class SearchComponent implements OnInit {
     });
   }
 
-  // TODO: add the display chip option to the selected filters so they can be removed from the span
   // TODO: add the search query to the search bar
   // TODO: add the search query to the filter options and mix it with the search bar query
   // TODO: add the search button to the search bar
 
   getAllSelectedFilters(): string[] {
     const selectedFilters: { name: string }[] = Object.values(this.filterGroup.value).flat() as { name: string }[];
-    console.log('Selected filters:', selectedFilters);
     return selectedFilters.map(filter => filter.name);
   }
 
@@ -118,10 +120,21 @@ export class SearchComponent implements OnInit {
   }
 
   searchQuery() {
-
+    const filters = this.getAllSelectedFilters();
+    const query = this.searchBar.get('query')?.value;
+    if (query === '' && filters.length === 0) {
+      this.noResultsFound = true;
+      console.error('No search query or filters provided');
+      return;
+    }
+    this.ingredientFilter(this.filterGroup.get('ingredients')?.value);
+    console.log('Search query:', query);
+    console.log('Selected filters:', filters);
   }
 
   ingredientFilter(ingredientQuery: string[]) {
+    console.log('Ingredient filter:', ingredientQuery);
+    const query = this.ingFilterUrl + ingredientQuery.join(',');
 
   }
 
@@ -134,6 +147,11 @@ export class SearchComponent implements OnInit {
   }
 
   glassFilter(glassQuery: string[]) {
+
+  }
+
+  // * this function will match all the responses from the api calls
+  matchResults() {
 
   }
 }

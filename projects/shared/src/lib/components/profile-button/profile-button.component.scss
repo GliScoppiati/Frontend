@@ -139,26 +139,31 @@
       }
     }
 
-    .card {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      block-size: 25mm;
+    .privacy {
+      display: block;
+      align-items: baseline;
+      gap: 8px;
+      block-size: 14mm;
+      line-height: normal;
 
-      .privacy-form {
-        margin-top: 15px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        block-size: 5mm;
+      label {
+        margin-left: 10px;
+        font-size: w-24;
+        font-family: semibold;
       }
+    }
 
-      .profiling-form {
-        margin-top: 15px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        block-size: 5mm;
+    .profiling {
+      justify-content: space-between;
+      display: block;
+      align-items: baseline;
+      gap: 8px;
+      block-size: 14mm;
+
+      label {
+        margin-left: 10px;
+        font-size: w-24;
+        font-family: semibold;
       }
     }
 

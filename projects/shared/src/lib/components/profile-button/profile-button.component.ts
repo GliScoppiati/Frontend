@@ -13,12 +13,11 @@ import { SplitButton } from 'primeng/splitbutton';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators, FormsModule, FormBuilder } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
 import { FloatLabel } from 'primeng/floatlabel';
-import { NgIf } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 
 // TODO: look for texts that need to be dynamic since they will be translated
 // TODO: check post and get requests for login and register and remove the search bar if not logged in (with Stefano)
-// TODO: start to create search page
 // TODO: create home button
 
 @Component({
@@ -26,7 +25,7 @@ import { Router } from '@angular/router';
   imports: [ButtonModule, Dialog, InputTextModule, AvatarModule,
             CheckboxModule, ReactiveFormsModule, FormsModule,
             PasswordModule, DividerModule, ToastModule, NgIf, SplitButton,
-            DatePickerModule, FloatLabel],
+            DatePickerModule, FloatLabel, NgFor],
   standalone: true,
   templateUrl: './profile-button.component.html',
   styleUrl: './profile-button.component.scss',
@@ -63,8 +62,17 @@ export class ProfileButtonComponent implements OnInit {
     login: 'Please login with your credentials',
     register: 'Please insert your informations to register',
     GDPR: `I agree to the Privacy Policy and the processing of my personal data under GDPR.`,
-    profiling: `I agree to the use of my data for personalized content and offers.`,
+    profiling: `I agree to the use of my data for personalized content.`,
   };
+
+  lastUpdated: string = 'Last updated: April 14, 2025.';
+  sections = [
+    'We collect your personal data such as name, email, and date of birth during registration. This information is used solely for authentication and profile purposes.',
+    'Your data is securely stored and never shared with third parties without consent. Passwords are hashed before being saved.',
+    'We use cookies or tokens (e.g. JWT) to maintain your session, but these are stored only in your browser and are not shared externally.',
+    'You may request deletion or modification of your data at any time by contacting us.',
+    'For more details or to exercise your rights under the GDPR (right to access, modify, erase, etc.), please contact our support team.'
+  ];
 
     // Booleans
   visibles: { [key: string]: boolean } = {
@@ -108,7 +116,9 @@ export class ProfileButtonComponent implements OnInit {
       {
         label: 'Details',
         icon: 'pi pi-fw pi-user',
-        url: '/profile',
+        command: () => {
+          this.router.navigate(['/profile']);
+        }
       },
       {
         label: 'Settings',
