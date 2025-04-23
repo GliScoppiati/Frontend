@@ -143,27 +143,25 @@ export class ProfileButtonComponent implements OnInit {
         label: 'Logout',
         icon: 'pi pi-fw pi-sign-out',
         command: () => {
-          this.authService.logout()
+          this.authService.logout(this.authService.getRefreshToken()!)
             .subscribe({
-              next: (response: any) => {
-                if (response) {
-                  this.authService.clearTokens();
-                  this.visibles['isLoggedIn'] = false;
-                  this.messageService.add({
-                    severity: 'success',
-                    summary: 'Logout successful',
-                    detail: 'You have been logged out',
-                    life: 3000,
-                    closable: true,
-                  });
-                }
+              next: () => {
+                this.authService.clearTokens();
+                this.visibles['isLoggedIn'] = false;
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Logout successful',
+                  detail: 'You have been logged out',
+                  life: 3000,
+                  closable: true,
+                });
+                this.router.navigate(['/home']);
               },
               error: (error: any) => {
-                console.error('Logout failed', error);
                 this.messageService.add({
                   severity: 'error',
                   summary: 'Logout failed',
-                  detail: 'Please try again later',
+                  detail: error.error.message,
                   life: 5000,
                   closable: true,
                 });
@@ -181,20 +179,12 @@ export class ProfileButtonComponent implements OnInit {
     if (this.authService.isLoggedIn()) {
       if (this.authService.isTokenExpired(this.authService.getJwtToken()!)) {
         if (this.authService.getRefreshToken()) {
+          console.log('Token expired, refreshing session');
           this.authService.refresh(this.authService.getRefreshToken()!)
           .subscribe({
               next: (response: any) => {
-                if (response) {
-                  this.authService.saveTokens(response.token, response.refreshToken.toString(), response.userId);
-                  this.visibles['isLoggedIn'] = true;
-                  this.messageService.add({
-                    severity: 'success',
-                    summary: 'Session refreshed',
-                    detail: 'You can now access your profile',
-                    life: 3000,
-                    closable: true,
-                  });
-                }
+                this.authService.saveTokens(response.token, response.refreshToken.toString());
+                this.visibles['isLoggedIn'] = true;
               },
               error: (error: any) => {
                 this.authService.clearTokens();
@@ -203,7 +193,7 @@ export class ProfileButtonComponent implements OnInit {
                 this.messageService.add({
                   severity: 'error',
                   summary: 'Session refresh failed',
-                  detail: 'Please try again later',
+                  detail: error.error.message,
                   life: 5000,
                   closable: true,
                 });
@@ -235,7 +225,6 @@ export class ProfileButtonComponent implements OnInit {
     if (this.visibles['privacyDialogVisible']) {
       this.privacyForm.reset({ privacyCheck: false });
     }
-    console.log('Privacy policy is visible', this.visibles['privacyDialogVisible']);
   }
 
   resetForm() {
@@ -249,7 +238,6 @@ export class ProfileButtonComponent implements OnInit {
       this.loginForm.reset();
       this.privacyForm.reset({ privacyCheck: false });
     }
-    console.log('Login form is visible', this.visibles['loginDialogVisible']);
   }
 
   // * This function is used to show the register form
@@ -283,6 +271,7 @@ export class ProfileButtonComponent implements OnInit {
       .subscribe({
         next: (response: any) => {
           if (response) {
+            this.router.navigate(['/home']);
             this.authService.saveTokens(response.token, response.refreshToken.toString(), response.userId);
             this.messageService.add({
               severity: 'success',
@@ -299,7 +288,7 @@ export class ProfileButtonComponent implements OnInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Login failed',
-            detail: 'Please try again later',
+            detail: error.error.message,
             life: 5000,
             closable: true,
           });
@@ -319,7 +308,9 @@ export class ProfileButtonComponent implements OnInit {
         this.registerForm.controls['username'].value,
         this.registerForm.controls['name'].value,
         this.registerForm.controls['surname'].value,
-        this.registerForm.controls['birthDate'].value);
+        this.registerForm.controls['birthDate'].value,
+        this.privacyForm.controls['privacyCheck'].value,
+        this.privacyForm.controls['profilingCheck'].value);
     // ! to comment for profile button check
     this.authService.register(
       this.registerForm.controls['username'].value,
@@ -328,14 +319,8 @@ export class ProfileButtonComponent implements OnInit {
       .subscribe({
         next: (response: any) => {
           if (response) {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Registration successful',
-              detail: 'You can now access your profile',
-              life: 3000,
-              closable: true,
-            });
-            this.authService.saveTokens(response.token, response.refreshToken.toString(), response.userId);
+            console.log('User id is ', response.userId);
+            this.authService.saveTokens(undefined, undefined, response.userId);
             // * Updating prrofile data when registering to fill the fields
             this.authService.updateProfile(
               this.registerForm.controls['name'].value,
@@ -344,34 +329,40 @@ export class ProfileButtonComponent implements OnInit {
               this.privacyForm.controls['privacyCheck'].value,
               this.privacyForm.controls['profilingCheck'].value)
               .subscribe({
-                next: (response: any) => {},
+                next: () => {
+                  console.log('Profile updated successfully');
+                  this.messageService.add({
+                    severity: 'success',
+                    summary: 'Profile registered',
+                    detail: 'Your profile has been created, now you can log in',
+                    life: 3000,
+                    closable: true,
+                  });
+                },
                 error: (error: any) => {
                   console.error('Profile update failed', error);
                   this.messageService.add({
                     severity: 'error',
                     summary: 'Profile update failed',
-                    detail: 'Please try again later',
+                    detail: error.error.message,
                     life: 5000,
                     closable: true,
                   });
                 }
               });
-            this.sendLoginData();
           }
-          this.visibles['isLoggedIn'] = true;
         },
         error: (error: any) => {
           console.error('Registration failed', error);
           this.messageService.add({
             severity: 'error',
             summary: 'Registration failed',
-            detail: 'Please try again later',
+            detail: error.error.message,
             life: 5000,
             closable: true,
           });
         }
       });
-    this.visibles['isLoggedIn'] = true;
     this.setRegisterVisible();
   }
 }

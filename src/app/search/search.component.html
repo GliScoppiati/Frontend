@@ -34,7 +34,7 @@
   <div class="combined-selected" >
     <label style="font-weight: bold;">Selected Filters:</label>
     <div class="selected-filters">
-      <p-chip *ngFor="let item of getAllSelectedFilters()" [label]="item" [removable]="true" (onRemove)="removeFilter(item)" class="span-filter" severity="info">
+      <p-chip *ngFor="let item of getAllSelectedFilters()" [label]="item" [removable]="true" (onRemove)="removeFilter(item)" on class="span-filter" severity="info">
       </p-chip>
     </div>
   </div>

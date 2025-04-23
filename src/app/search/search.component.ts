@@ -48,14 +48,16 @@ export class SearchComponent implements OnInit {
 
   query: string = '';
   noResultsFound: boolean = false;
-  categoriesUrl: string = 'https://www.thecocktaildb.com/api/json/v1/1/list.php?c=list';
-  glassesUrl: string = 'https://www.thecocktaildb.com/api/json/v1/1/list.php?g=list';
-  ingredientsUrl: string = 'https://www.thecocktaildb.com/api/json/v1/1/list.php?i=list';
-  alcoholicUrl: string = 'https://www.thecocktaildb.com/api/json/v1/1/list.php?a=list';
-  ingFilterUrl: string = 'https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=';
-  categoryFilterUrl: string = 'https://www.thecocktaildb.com/api/json/v1/1/filter.php?c=';
-  glassFilterUrl: string = 'https://www.thecocktaildb.com/api/json/v1/1/filter.php?g=';
-  alcohoolFilterUrl: string = 'https://www.thecocktaildb.com/api/json/v1/1/filter.php?a=';
+
+  cListAPI: string = 'https://www.thecocktaildb.com/api/json/v1/1/list.php?c=list';
+  gListAPI: string = 'https://www.thecocktaildb.com/api/json/v1/1/list.php?g=list';
+  iListAPI: string = 'https://www.thecocktaildb.com/api/json/v1/1/list.php?i=list';
+  aListAPI: string = 'https://www.thecocktaildb.com/api/json/v1/1/list.php?a=list';
+
+  ingFilterAPI: string = 'https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=';
+  catFilterAPI: string = 'https://www.thecocktaildb.com/api/json/v1/1/filter.php?c=';
+  glaFilterAPI: string = 'https://www.thecocktaildb.com/api/json/v1/1/filter.php?g=';
+  alcFilterAPI: string = 'https://www.thecocktaildb.com/api/json/v1/1/filter.php?a=';
 
   constructor(
     private route: ActivatedRoute,
@@ -76,25 +78,26 @@ export class SearchComponent implements OnInit {
    }
 
   ngOnInit(): void {
-    this.http.get<{ drinks: { strCategory: string }[] }>(`${this.categoriesUrl}`).subscribe((response) => {
+    // TODO: add check if logged then...
+    this.http.get<{ drinks: { strCategory: string }[] }>(`${this.cListAPI}`).subscribe((response) => {
       this.filterOptions['type'] = response.drinks.map(item => ({ name: item.strCategory}));
       console.log(this.filterOptions['type']);
     });
-    this.http.get<{ drinks: {strGlass: string}[]}>(`${this.glassesUrl}`).subscribe((response) => {
+    this.http.get<{ drinks: {strGlass: string}[]}>(`${this.gListAPI}`).subscribe((response) => {
       this.filterOptions['glass'] = response.drinks.map(item => ({name: item.strGlass}));
       console.log(this.filterOptions['glass']);
     });
-    this.http.get<{ drinks: {strIngredient1: string}[] }>(`${this.ingredientsUrl}`).subscribe((response) => {
+    this.http.get<{ drinks: {strIngredient1: string}[] }>(`${this.iListAPI}`).subscribe((response) => {
       this.filterOptions['ingredients'] = response.drinks.map(item => ({name: item.strIngredient1}));
       console.log(this.filterOptions['ingredients']);
     });
-    this.http.get<{ drinks: {strAlcoholic: string}[] }>(`${this.alcoholicUrl}`).subscribe((response) => {
+    this.http.get<{ drinks: {strAlcoholic: string}[] }>(`${this.aListAPI}`).subscribe((response) => {
       this.filterOptions['alcoholic'] = response.drinks.map(item => ({name: item.strAlcoholic}));
       console.log(this.filterOptions['alcoholic']);
     });
   }
 
-  // TODO: add the search query to the search bar
+  // TODO: add the valueChanged event to the filterFormGroup
   // TODO: add the search query to the filter options and mix it with the search bar query
   // TODO: add the search button to the search bar
 
@@ -134,7 +137,7 @@ export class SearchComponent implements OnInit {
 
   ingredientFilter(ingredientQuery: string[]) {
     console.log('Ingredient filter:', ingredientQuery);
-    const query = this.ingFilterUrl + ingredientQuery.join(',');
+    const query = this.ingFilterAPI + ingredientQuery.join(',');
 
   }
 

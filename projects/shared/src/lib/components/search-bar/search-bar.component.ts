@@ -21,6 +21,9 @@ export class SearchBarComponent {
   noResultsFound: boolean = false;
   query: string = '';
 
+  // TODO: change ngModel with reactive Forms
+  // TODO: add valuechanged event to search bar when logged in
+
   constructor(
     private searchService: SearchBarService,
     private router: Router) {}

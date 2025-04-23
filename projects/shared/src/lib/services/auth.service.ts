@@ -7,42 +7,48 @@ import { jwtDecode } from 'jwt-decode';
   providedIn: 'root'
 })
 export class AuthService {
-  // TODO: Add the backend URL to the environment file
-  private backendUrl: string = 'http://localhost:5000/auth/api/auth';
-  private profileUrl: string = 'http://localhost:5000/userprofile/api/userprofile';
+  private backendAPI: string = 'http://localhost:5000/auth/api/auth';
+  private profileAPI: string = 'http://localhost:5000/userprofile/api/userprofile/';
   private loggedIn = new BehaviorSubject<boolean>(this.isLoggedIn());
   loggedIn$ = this.loggedIn.asObservable();
 
   constructor(private http: HttpClient) { }
 
   login(email: string, password: string): Observable<any> {
-    return this.http.post(`${this.backendUrl}/login`, { email, password });
+    return this.http.post(`${this.backendAPI}/login`, { email, password });
   }
 
   register(username: string, email: string, password: string): Observable<any> {
-    return this.http.post(`${this.backendUrl}/register`, { username, email, password });
+    return this.http.post(`${this.backendAPI}/register`, { username, email, password });
   }
 
   updateProfile(name: string, surname: string, birthDate: string, privacy:  boolean, profiling: boolean): Observable<any> {
-    return this.http.put(`${this.profileUrl}${this.getUserId()}`, { name, surname, birthDate, privacy, profiling });
+    const userId = this.getUserId();
+    return this.http.put(`${this.profileAPI}${userId}`, { userId, name, surname, birthDate, privacy, profiling });
   }
 
-  logout(): Observable<any> {
-    return this.http.post(`${this.backendUrl}/logout`, {});
+  logout(refreshToken: string): Observable<any> {
+    console.log('logout token', refreshToken);
+    return this.http.post(`${this.backendAPI}/logout`, { refreshToken });
   }
 
   refresh(refreshToken: string): Observable<any> {
-    return this.http.post(`${this.backendUrl}/refresh`, { refreshToken });
+    console.log('refresh token', refreshToken);
+    return this.http.post(`${this.backendAPI}/refresh`, { refreshToken });
   }
 
   getUserProfileData(): Observable<any> {
-    return this.http.get(`${this.backendUrl}/profile`);
+    return this.http.get(`${this.backendAPI}/${this.getUserId()}`);
   }
 
-  saveTokens(JwtToken: string, refreshToken: string, userId: string): void {
-    sessionStorage.setItem('userId', userId);
-    sessionStorage.setItem('JwtToken', JwtToken);
-    sessionStorage.setItem('refreshToken', refreshToken);
+  saveTokens(JwtToken?: string, refreshToken?: string, userId?: string): void {
+    if  (userId)
+      sessionStorage.setItem('userId', userId);
+    if (JwtToken)
+      sessionStorage.setItem('JwtToken', JwtToken);
+    if (refreshToken)
+      sessionStorage.setItem('refreshToken', refreshToken);
+    console.log('Tokens saved to session storage', JwtToken, refreshToken, userId);
   }
 
   getUserId(): string | null {
