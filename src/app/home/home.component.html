@@ -1,7 +1,9 @@
 <div class="top-nav">
-  <div class="left-section"></div>
-  <div *ngIf="isLoggedIn$ | async" class="center-section">
-    <lib-search-bar></lib-search-bar>
+  <div class="left-section">
+    <!-- logo -->
+    <lib-left-buttons></lib-left-buttons>
+  </div>
+  <div class="center-section">
   </div>
   <div class="right-section">
     <lib-profile-button></lib-profile-button>

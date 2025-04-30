@@ -7,7 +7,7 @@ import { NgFor } from '@angular/common';
 import { delay, firstValueFrom, Observable } from 'rxjs';
 import { CardModule } from 'primeng/card';
 import { trigger, state, transition, style, animate } from '@angular/animations';
-import { AuthService, SearchBarComponent } from '../../../projects/shared/src/public-api';
+import { AuthService, LeftButtonsComponent } from '../../../projects/shared/src/public-api';
 import { ProfileButtonComponent } from '../../../projects/shared/src/public-api';
 
 @Component({
@@ -21,7 +21,7 @@ import { ProfileButtonComponent } from '../../../projects/shared/src/public-api'
       animate('1000ms ease-out', style({opacity: 0})),
     ]),
   ])],
-  imports: [NgFor, CommonModule, CardModule, SearchBarComponent, ProfileButtonComponent],
+  imports: [NgFor, CommonModule, CardModule, LeftButtonsComponent, ProfileButtonComponent],
   standalone: true,
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
@@ -43,7 +43,7 @@ export class HomeComponent implements OnInit {
   currentImages: string[] = [];
   showImages: boolean[] = [];
 
-  stringUrl = "https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=";
+  stringUrl = "https://www.thecocktaildb.com/api/json/v1/1/random.php";
   public images: Set<string> = new Set();
   imgSize: string[] = ['/small', '/medium', '/large'];
   accessButton = 'Accedi';
@@ -77,14 +77,13 @@ export class HomeComponent implements OnInit {
   }
 
   // ! this is temporary since we don't have a backend yet
-  // TODO: Add a delay to change the display of the images and the h2 every 5 seconds
+  // TODO: do the research to match the images with the title
   async pickAllDrinks(): Promise<string[][]> {
     const promises: Promise<string | null>[] = [];
     for (let i = 0; i < 20; i++) {
-      const number: number = 11000 + i;
-      const id: string = number.toString(); // TODO: Add api call to the backend
+      // TODO: Add api call to the backend
       const promise = firstValueFrom(
-          this.http.get<{ drinks: { strDrinkThumb: string }[] }>(this.stringUrl + id)
+          this.http.get<{ drinks: { strDrinkThumb: string }[] }>(this.stringUrl)
         ).then(response => {
           if (response?.drinks?.[0]) {
             return response.drinks[0].strDrinkThumb + this.imgSize[2];

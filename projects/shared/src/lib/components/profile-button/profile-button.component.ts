@@ -93,7 +93,8 @@ export class ProfileButtonComponent implements OnInit {
     private formBuilder: FormBuilder,
     private messageService: MessageService,
     private authService: AuthService,
-    private router: Router)
+    private router: Router
+  )
   {
     this.registerForm = this.formBuilder.group({
       name: ['', Validators.required],
@@ -167,6 +168,7 @@ export class ProfileButtonComponent implements OnInit {
                 });
               }
             });
+          this.authService.clearTokens();
           this.visibles['isLoggedIn'] = false;
         }
       }
@@ -294,7 +296,6 @@ export class ProfileButtonComponent implements OnInit {
           });
         }
       });
-    this.visibles['isLoggedIn'] = true;
     this.setLoginVisible();
   }
 
@@ -303,14 +304,14 @@ export class ProfileButtonComponent implements OnInit {
   sendRegisterData() {
     if (this.registerForm.invalid)
       return this.showError();
-    console.log('Register data sent', this.registerForm.controls['email'].value,
-        this.registerForm.controls['password'].value,
-        this.registerForm.controls['username'].value,
-        this.registerForm.controls['name'].value,
-        this.registerForm.controls['surname'].value,
-        this.registerForm.controls['birthDate'].value,
-        this.privacyForm.controls['privacyCheck'].value,
-        this.privacyForm.controls['profilingCheck'].value);
+    // console.log('Register data sent', this.registerForm.controls['email'].value,
+    //     this.registerForm.controls['password'].value,
+    //     this.registerForm.controls['username'].value,
+    //     this.registerForm.controls['name'].value,
+    //     this.registerForm.controls['surname'].value,
+    //     this.registerForm.controls['birthDate'].value,
+    //     this.privacyForm.controls['privacyCheck'].value,
+    //     this.privacyForm.controls['profilingCheck'].value);
     // ! to comment for profile button check
     this.authService.register(
       this.registerForm.controls['username'].value,

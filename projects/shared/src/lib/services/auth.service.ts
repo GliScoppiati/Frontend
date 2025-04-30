@@ -9,6 +9,7 @@ import { jwtDecode } from 'jwt-decode';
 export class AuthService {
   private backendAPI: string = 'http://localhost:5000/auth/api/auth';
   private profileAPI: string = 'http://localhost:5000/userprofile/api/userprofile/';
+
   private loggedIn = new BehaviorSubject<boolean>(this.isLoggedIn());
   loggedIn$ = this.loggedIn.asObservable();
 
