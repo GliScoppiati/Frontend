@@ -9,11 +9,12 @@ import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { Button } from 'primeng/button';
 import { ChipModule } from 'primeng/chip';
 import { Dialog } from 'primeng/dialog';
+import { ImageModule } from 'primeng/image';
 import { CardModule } from 'primeng/card';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { FormsModule, FormGroup, FormControl, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService, ProfileButtonComponent, LeftButtonsComponent } from '../../../projects/shared/src/public-api';
+import { AuthService, ProfileButtonComponent, LeftButtonsComponent, HistoryService } from 'shared';
 import { NgFor, NgIf } from '@angular/common';
 import { debounceTime, distinctUntilChanged, forkJoin, map, Observable } from 'rxjs';
 
@@ -30,15 +31,20 @@ interface Filter {
 
 @Component({
   selector: 'app-search',
-  imports: [ProfileButtonComponent, FloatLabel, InputText, NgIf,
+  imports: [
+    ProfileButtonComponent, FloatLabel, InputText, NgIf,
     IconField, InputIcon, FormsModule, ReactiveFormsModule,
     MultiSelectModule, NgFor, Button, InputGroupModule,
-    ChipModule, Dialog, CardModule, PaginatorModule, LeftButtonsComponent],
+    ChipModule, Dialog, CardModule, PaginatorModule, LeftButtonsComponent,
+    ImageModule
+  ],
   standalone: true,
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss'
 })
 export class SearchComponent implements OnInit {
+
+  imageCardText: string = 'Open';
 
   // * paginator code
   first: number = 0;
@@ -55,9 +61,11 @@ export class SearchComponent implements OnInit {
   searchResults: SearchResult[] = [];
   paginatedResults: SearchResult[] = [];
 
+  // * dialog not logged in
   visible: boolean = true;
   dialogHeader: string = 'Cannot access to this page';
 
+  // * filters placeholders
   placeholders: { [key: string]: string } = {
     ingredients: 'Filter by ingredients',
     glass: 'Filter by glass',
@@ -76,6 +84,7 @@ export class SearchComponent implements OnInit {
 
   query: string = '';
   noResultsFound: boolean = false;
+  // TODO: make the history be visible
   history: string[][] = [];
 
   cListAPI: string = 'https://www.thecocktaildb.com/api/json/v1/1/list.php?c=list';
@@ -98,7 +107,8 @@ export class SearchComponent implements OnInit {
     private http: HttpClient,
     private formBuilder: FormBuilder,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private historyService: HistoryService
   ) {
     this.searchForm = this.formBuilder.group({
       query: [''],
@@ -337,6 +347,7 @@ export class SearchComponent implements OnInit {
   }
 
   displayCardPage(id: string) {
+    this.historyService.addToHistory(id);
     this.router.navigate(['/card'], { queryParams: { cocktailId: id} });
   }
 }

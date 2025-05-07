@@ -48,7 +48,19 @@
         <p-card [style]="{ width: '300px', overflow: 'hidden' }">
           <ng-template #header>
             <!-- <p-skeleton></p-skeleton> -->
-            <img alt="Cocktail card" class="image-card" [src]="card.image" style="cursor: pointer;" (click)="displayCardPage(card.id)" />
+            <p-image
+              alt="Cocktail card"
+              class="image-card"
+              [src]="card.image"
+              [style]="{'cursor': 'pointer'}"
+              width="300"
+              [preview]="true"
+              (click)="displayCardPage(card.id)"
+              >
+              <ng-template #indicator>
+                <i class="card-indicator" [textContent]="imageCardText"></i>
+              </ng-template>
+            </p-image>
           </ng-template>
           <ng-template #title>
             <div class="title-container">
@@ -65,6 +77,7 @@
           </ng-template>
           <ng-template #footer>
             <div>
+              <!-- TODO: add cretated by -->
               <!-- <p-avatar></p-avatar> -->
             </div>
           </ng-template>

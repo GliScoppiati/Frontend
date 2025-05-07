@@ -43,7 +43,7 @@ export class LeftButtonsComponent {
   }
 
   isSearchPage(): boolean {
-    return this.router.url === '/search';
+    return this.router.url.includes('/search');
   }
 
   isCreatePage(): boolean {

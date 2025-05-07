@@ -7,8 +7,7 @@ import { NgFor } from '@angular/common';
 import { delay, firstValueFrom, Observable } from 'rxjs';
 import { CardModule } from 'primeng/card';
 import { trigger, state, transition, style, animate } from '@angular/animations';
-import { AuthService, LeftButtonsComponent } from '../../../projects/shared/src/public-api';
-import { ProfileButtonComponent } from '../../../projects/shared/src/public-api';
+import { AuthService, LeftButtonsComponent, ProfileButtonComponent } from 'shared';
 
 @Component({
   selector: 'app-home',

@@ -1,0 +1,100 @@
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
+  margin-top: 20px;
+  height: 50px;
+}
+
+.left-section {
+  display: flex;
+
+}
+.right-section {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.tab-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.content-wrapper {
+  width: 100%;
+  max-width: 64rem;
+  margin-top: 1rem;
+}
+
+.details-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.favorites-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  justify-content: center;
+  padding: 1rem;
+}
+
+.title-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fav-button {
+  border: none;
+  background: transparent;
+}
+
+.image-card {
+  border-radius: 0.5rem;
+  object-fit: cover;
+  height: 200px;
+}
+
+.card-indicator {
+  font-size: 0.75rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.3rem;
+}
+
+.no-fav-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.paginator {
+  margin-top: 1rem;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+::ng-deep .p-paginator {
+  background-color: #000000;
+  border: none;
+}
+

@@ -304,14 +304,17 @@ export class ProfileButtonComponent implements OnInit {
   sendRegisterData() {
     if (this.registerForm.invalid)
       return this.showError();
-    // console.log('Register data sent', this.registerForm.controls['email'].value,
-    //     this.registerForm.controls['password'].value,
-    //     this.registerForm.controls['username'].value,
-    //     this.registerForm.controls['name'].value,
-    //     this.registerForm.controls['surname'].value,
-    //     this.registerForm.controls['birthDate'].value,
-    //     this.privacyForm.controls['privacyCheck'].value,
-    //     this.privacyForm.controls['profilingCheck'].value);
+    const birthDate = new Date(this.registerForm.controls['birthDate'].value);
+    console.log('Birth date', birthDate, this.isOver18(birthDate));
+    console.log('Register data sent', this.registerForm.controls['email'].value,
+        this.registerForm.controls['password'].value,
+        this.registerForm.controls['username'].value,
+        this.registerForm.controls['name'].value,
+        this.registerForm.controls['surname'].value,
+        birthDate,
+        this.isOver18(birthDate),
+        this.privacyForm.controls['privacyCheck'].value,
+        this.privacyForm.controls['profilingCheck'].value);
     // ! to comment for profile button check
     this.authService.register(
       this.registerForm.controls['username'].value,
@@ -327,6 +330,7 @@ export class ProfileButtonComponent implements OnInit {
               this.registerForm.controls['name'].value,
               this.registerForm.controls['surname'].value,
               this.registerForm.controls['birthDate'].value,
+              this.isOver18(birthDate),
               this.privacyForm.controls['privacyCheck'].value,
               this.privacyForm.controls['profilingCheck'].value)
               .subscribe({
@@ -366,4 +370,18 @@ export class ProfileButtonComponent implements OnInit {
       });
     this.setRegisterVisible();
   }
+
+  isOver18(birthDate: Date): boolean {
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    return age >= 18;
+  }
+
+
 }

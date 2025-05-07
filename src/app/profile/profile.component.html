@@ -1,1 +1,122 @@
-<p>profile works!</p>
+<div class="profile-page">
+  <div class="top-bar">
+    <div class="left-section">
+      <lib-left-buttons></lib-left-buttons>
+    </div>
+    <div class="right-section">
+      <lib-profile-button></lib-profile-button>
+    </div>
+  </div>
+  <div class="profile-container">
+    <!-- Tab Buttons -->
+    <div class="tab-buttons">
+      <p-button
+        label="Details"
+        [class]="selectedMenu === 'details' ? 'p-button-primary' : 'p-button-outlined'"
+        (click)="selectMenu('details')"
+      ></p-button>
+
+      <p-button
+        label="Favorites"
+        [class]="selectedMenu === 'favorites' ? 'p-button-primary' : 'p-button-outlined'"
+        (click)="selectMenu('favorites')"
+      ></p-button>
+    </div>
+
+    <!-- Content Display -->
+    <div class="content-wrapper">
+      <!-- DETAILS -->
+      <p-card *ngIf="selectedMenu === 'details'" header="Your Profile Details">
+        <form [formGroup]="profileForm" class="details-form">
+          <div class="form-group">
+            <label for="firstName"><strong>First name</strong></label>
+            <input pInputText id="firstName" formControlName="firstName" />
+          </div>
+
+          <div class="form-group">
+            <label for="lastName"><strong>Last name</strong></label>
+            <input pInputText id="lastName" formControlName="lastName" />
+          </div>
+
+          <div class="form-group">
+            <label for="birthDate"><strong>Birthdate</strong></label>
+            <p-datepicker view="month" dateFormat="mm/yy" [readonlyInput]="true" formControlName="birthDate" />
+          </div>
+
+          <div class="form-group">
+            <label for="email"><strong>Email</strong></label>
+            <input pInputText [disabled]="true" id="email" formControlName="email" />
+          </div>
+
+          <div class="form-group">
+            <label for="username"><strong>Username</strong></label>
+            <input pInputText [disabled]="true" id="username" formControlName="username" />
+          </div>
+
+          <div class="form-group">
+            <label for="alcoholAllowed"><strong>Alcohol allowed</strong></label>
+            <input pInputText id="alcoholAllowed" formControlName="alcoholAllowed" />
+          </div>
+
+          <div class="form-group">
+            <label for="consentProfiling"><strong>Consent for profiling</strong></label>
+            <input pInputText id="consentProfiling" formControlName="consentProfiling" />
+          </div>
+        </form>
+      </p-card>
+
+      <!-- FAVORITES -->
+      <div *ngIf="selectedMenu === 'favorites'" class="favorites-grid">
+        <p-card
+          *ngFor="let card of favorites"
+          [style]="{ width: '300px', overflow: 'hidden' }"
+        >
+          <ng-template #header>
+            <p-image
+              alt="Cocktail card"
+              class="image-card"
+              [src]="card.image"
+              [style]="{ cursor: 'pointer' }"
+              width="300"
+              [preview]="true"
+              (click)="displayCardPage(card.id)"
+            >
+              <ng-template #indicator>
+                <i class="card-indicator">Open</i>
+              </ng-template>
+            </p-image>
+          </ng-template>
+
+          <ng-template #title>
+            <div class="title-container">
+              <span>{{ card.name }}</span>
+              <p-button
+                class="fav-button"
+                [icon]="card.isFavorite ? 'pi pi-heart-fill' : 'pi pi-heart'"
+                [style]="{ color: 'red' }"
+                (click)="addToFavorites(card.id); card.isFavorite = !card.isFavorite"
+                styleClass="w-full"
+                [severity]="'secondary'"
+              ></p-button>
+            </div>
+          </ng-template>
+
+          <ng-template #footer>
+            <!-- Optional footer content -->
+          </ng-template>
+        </p-card>
+
+        <p *ngIf="favorites.length === 0" class="no-fav-message">
+          No favorites yet.
+        </p>
+      </div>
+
+      <div class="paginator" *ngIf="favorites.length > 5 && selectedMenu === 'favorites'">
+        <p-paginator (onPageChange)="onPageChange($event)" [first]="first" [rows]="rows" [totalRecords]="favorites.length" [rowsPerPageOptions]="rowsPerPageOptions" />
+      </div>
+    </div>
+  </div>
+
+
+
+</div>

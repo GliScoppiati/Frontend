@@ -7,7 +7,7 @@ import { jwtDecode } from 'jwt-decode';
   providedIn: 'root'
 })
 export class AuthService {
-  private backendAPI: string = 'http://localhost:5000/auth/api/auth';
+  private backendAPI: string = 'http://localhost:5000/auth/api/auth/';
   private profileAPI: string = 'http://localhost:5000/userprofile/api/userprofile/';
 
   private loggedIn = new BehaviorSubject<boolean>(this.isLoggedIn());
@@ -16,30 +16,30 @@ export class AuthService {
   constructor(private http: HttpClient) { }
 
   login(email: string, password: string): Observable<any> {
-    return this.http.post(`${this.backendAPI}/login`, { email, password });
+    return this.http.post(`${this.backendAPI}login`, { email, password });
   }
 
   register(username: string, email: string, password: string): Observable<any> {
-    return this.http.post(`${this.backendAPI}/register`, { username, email, password });
+    return this.http.post(`${this.backendAPI}register`, { username, email, password });
   }
 
-  updateProfile(name: string, surname: string, birthDate: string, privacy:  boolean, profiling: boolean): Observable<any> {
+  updateProfile(firstName: string, lastName: string, birthDate: string, alcoholAllowed: boolean, consentGdpr:  boolean, consentProfiling: boolean): Observable<any> {
     const userId = this.getUserId();
-    return this.http.put(`${this.profileAPI}${userId}`, { userId, name, surname, birthDate, privacy, profiling });
+    return this.http.put(`${this.profileAPI}${userId}`, { userId, firstName, lastName, birthDate, alcoholAllowed, consentGdpr, consentProfiling });
   }
 
   logout(refreshToken: string): Observable<any> {
     console.log('logout token', refreshToken);
-    return this.http.post(`${this.backendAPI}/logout`, { refreshToken });
+    return this.http.post(`${this.backendAPI}logout`, { refreshToken });
   }
 
   refresh(refreshToken: string): Observable<any> {
     console.log('refresh token', refreshToken);
-    return this.http.post(`${this.backendAPI}/refresh`, { refreshToken });
+    return this.http.post(`${this.backendAPI}refresh`, { refreshToken });
   }
 
   getUserProfileData(): Observable<any> {
-    return this.http.get(`${this.backendAPI}/${this.getUserId()}`);
+    return this.http.get(`${this.profileAPI}${this.getUserId()}`);
   }
 
   saveTokens(JwtToken?: string, refreshToken?: string, userId?: string): void {
@@ -54,6 +54,26 @@ export class AuthService {
 
   getUserId(): string | null {
     return sessionStorage.getItem('userId');
+  }
+
+  getProfiling(): boolean {
+    const userId = this.getUserId();
+    this.http.get(`${this.profileAPI}${userId}`).subscribe((response: any ) => {
+      const consentProfiling = response.consentProfiling;
+      console.log('consentProfiling', consentProfiling);
+      return consentProfiling;
+    });
+    return false;
+  }
+
+  getAlcoholAllowed(): boolean {
+    const userId = this.getUserId();
+    this.http.get(`${this.profileAPI}${userId}`).subscribe((response: any ) => {
+      const alcoholAllowed = response.alcoholAllowed;
+      console.log('alcoholAllowed', alcoholAllowed);
+      return alcoholAllowed;
+    });
+    return false;
   }
 
   getJwtToken(): string | null {

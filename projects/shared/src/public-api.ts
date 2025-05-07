@@ -3,6 +3,6 @@
  */
 
 export * from './lib/services/auth.service';
-export * from './lib/components/search-button/left-buttons.component';
+export * from './lib/services/history.service';
+export * from './lib/components/left-buttons/left-buttons.component';
 export * from './lib/components/profile-button/profile-button.component';
-export * from './lib/components/home-button/home-button.component';

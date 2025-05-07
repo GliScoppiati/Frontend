@@ -1,1 +1,132 @@
-<p>card works!</p>
+<ng-container *ngIf="userIsLogged(); else notLogged">
+  <div class="card-page">
+    <div class="top-bar">
+      <div class="left-section">
+        <lib-left-buttons></lib-left-buttons>
+      </div>
+      <div class="right-section">
+        <lib-profile-button></lib-profile-button>
+      </div>
+    </div>
+    <div class="cocktail-pin">
+      <h2 class="cocktail-name">{{ cocktailInfo.name }}</h2>
+
+      <p-card class="cocktail-card" [style]="{ overflow: 'hidden' }">
+        <div class="card-content">
+          <!-- Left: Image -->
+          <div class="image-side">
+            <p-button class="favorite-btn" [icon]="isFavorite ? 'pi pi-heart-fill' : 'pi pi-heart'" (click)="manageFavorite(cocktailInfo.id);">
+
+            </p-button>
+            <div class="image-wrapper">
+              <p-image
+                alt="Cocktail"
+                class="image-card"
+                [src]="cocktailInfo.image"
+                width="450"
+              ></p-image>
+
+            </div>
+          </div>
+
+          <!-- Right: Info in 2 columns + instructions below -->
+          <div class="info-container">
+            <div class="top-info">
+              <!-- Ingredients -->
+              <div class="info-section ingredients">
+                <h3>Ingredients</h3>
+                <ul class="ingredient-list">
+                  <li *ngFor="let ingredient of cocktailInfo.ingredientsAndMeasures['ing']; let index = index">
+                    {{ displayIngredient(ingredient, index) }}
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Categories -->
+              <div class="info-section categories">
+                <h3>Type</h3>
+                <p>{{ cocktailInfo.category }}</p>
+                <h3>Glass</h3>
+                <p>{{ cocktailInfo.glass }}</p>
+                <h3>Alcoholic</h3>
+                <p>{{ cocktailInfo.alcoholic }}</p>
+              </div>
+            </div>
+
+            <p-divider></p-divider>
+
+            <!-- Instructions under both -->
+             <!-- TODO: add only the original instruction of the drink (en for the imported) -->
+              <!-- TODO: and add a button "translate to" the language chosen from the user -->
+            <div class="instructions">
+              <h3>Instructions</h3>
+              <p-tabs value="0">
+                <p-tablist>
+                  <p-tab value="0">EN</p-tab>
+                  <p-tab value="1">FR</p-tab>
+                  <p-tab value="2">ES</p-tab>
+                  <p-tab value="3">DE</p-tab>
+                  <p-tab value="4">IT</p-tab>
+                </p-tablist>
+                <p-tabpanels>
+                  <p-tabpanel value="0">
+                    <p class="m-0">{{ cocktailInfo.instructions['en'] }}</p>
+                  </p-tabpanel>
+                  <p-tabpanel value="1">
+                    <p class="m-0">{{ cocktailInfo.instructions['fr'] || 'Not available' }}</p>
+                  </p-tabpanel>
+                  <p-tabpanel value="2">
+                    <p class="m-0">{{ cocktailInfo.instructions['es'] || 'Not available' }}</p>
+                  </p-tabpanel>
+                  <p-tabpanel value="3">
+                    <p class="m-0">{{ cocktailInfo.instructions['de'] || 'Not available' }}</p>
+                  </p-tabpanel>
+                  <p-tabpanel value="4">
+                    <p class="m-0">{{ cocktailInfo.instructions['it'] || 'Not available' }}</p>
+                  </p-tabpanel>
+                </p-tabpanels>
+              </p-tabs>
+            </div>
+          </div>
+        </div>
+      </p-card>
+    </div>
+  </div>
+  <div class="history-carousel" *ngIf="history.length > 0">
+    <h3 class="carousel-title">Recently Viewed</h3>
+    <p-carousel
+      [value]="history"
+      [numVisible]="3"
+      [numScroll]="3"
+      [circular]="true"
+      [responsiveOptions]="responsiveOptions"
+      [autoplayInterval]="3000"
+    >
+      <ng-template let-cocktail #item>
+        <div class="history-item border border-surface-200 dark:border-surface-700 rounded m-2 p-4">
+          <div class="mb-4">
+            <div class="relative mx-auto">
+              <img
+                [src]="cocktail.image"
+                [alt]="cocktail.name"
+                class="w-full rounded-xl"
+              />
+            </div>
+          </div>
+          <div class="text-center font-medium">{{ cocktail.name }}</div>
+        </div>
+      </ng-template>
+    </p-carousel>
+  </div>
+
+</ng-container>
+
+
+<ng-template #notLogged>
+  <div class="not-logged-message">
+    <p-dialog class="dialog" [header]="dialogHeader" [(visible)]="visible" [style]="{width: 'width', minWidth: 'minWidth'}" [closable]="false">
+      <p>Please log in to search for cocktails 🍸</p>
+      <p-button label="Login" icon="pi pi-sign-in" (onClick)="redirectHome()"></p-button>
+    </p-dialog>
+  </div>
+</ng-template>

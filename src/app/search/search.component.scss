@@ -17,8 +17,6 @@
   flex: 1;
   margin-top: 10px;
   display: flex;
-  // justify-content: center;
-  // padding: 0 2rem;
   position: relative;
 }
 
@@ -28,9 +26,6 @@
   padding: 1rem 0.5rem;
   box-sizing: border-box;
 }
-
-
-
 
 .search-form {
   display: flex;
@@ -117,13 +112,13 @@
 }
 
 .card-grid {
-  // padding: 0 30px;
+  margin-top: 10px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   grid-template-rows: auto;
-  // gap: 5px;
   width: 100%;
   justify-items: center;
+  gap: 1rem;
 }
 
 .image-card {
@@ -132,8 +127,16 @@
   object-fit: cover; /* ensures the image fits nicely inside */
 }
 
+.card-indicator {
+  font-size: 0.75rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.3rem;
+}
+
 p-card {
-  margin: 0; // remove unwanted margin
+  margin: 0;
 }
 
 .title-container {

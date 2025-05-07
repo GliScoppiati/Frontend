@@ -1,1 +1,164 @@
-<p>create works!</p>
+<ng-container *ngIf="userIsLogged(); else notLoggedIn">
+  <div class="create-page">
+    <div class="top-bar">
+      <div class="left-section">
+        <lib-left-buttons></lib-left-buttons>
+      </div>
+      <div class="right-section">
+        <lib-profile-button></lib-profile-button>
+      </div>
+    </div>
+    <div class="cocktail-create">
+      <div class="cocktail-name-container">
+        <form [formGroup]="selectedForm">
+          <p-float-label variant="on">
+            <input pInputText id="cocktailName" formControlName="name" class="cocktail-name" />
+            <label for="on_label">Name your cocktail</label>
+          </p-float-label>
+        </form>
+      </div>
+
+
+      <p-card class="cocktail-card" [style]="{ overflow: 'hidden' }">
+        <div class="card-content">
+          <!-- Left: Image -->
+          <div class="image-side">
+            <div class="image-wrapper">
+              <p-toast />
+              <p-fileupload #fu mode="basic" chooseLabel="Choose"
+                chooseIcon="pi pi-upload" name="demo[]" [auto]="true"
+                url="https://www.primefaces.org/cdn/api/upload.php"
+                accept="image/*" maxFileSize="1000000" (onUpload)="uploadFile($event)" />
+            </div>
+          </div>
+
+          <!-- Right: Info in 2 columns + instructions below -->
+          <div class="info-container">
+            <div class="top-info">
+              <!-- Ingredients -->
+
+              <div class="info-section ingredients">
+                <div class="input-number-label">
+                  <p-fluid>
+                    <form [formGroup]="ingredientsNumbers">
+                      <label for="ingredientCount" class="p-inputnumber-label">
+                        Number of ingredients
+                      </label>
+                      <p-inputnumber formControlName="number" [showButtons]="true" buttonLayout="horizontal"
+                        inputId="ingredientCount" spinnerMode="horizontal" [step]="1" mode="decimal" [min]="1" [max]="10">
+                        <ng-template #incrementbuttonicon>
+                          <span class="pi pi-plus"></span>
+                        </ng-template>
+                        <ng-template #decrementbuttonicon>
+                          <span class="pi pi-minus"></span>
+                        </ng-template>
+                      </p-inputnumber>
+                    </form>
+                  </p-fluid>
+                </div>
+                <form [formGroup]="selectedForm">
+                  <div formArrayName="ingredientsList">
+
+                    <div *ngFor="let group of ingredientsList.controls; let index = index" [formGroupName]="index">
+                      <div class="ingredient-selectors">
+
+                          <div class="select-ingredient" *ngIf="ingredientExists[index] || showAddedIngredient[index]">
+                            <label for="ingredient{{ index }}" class="ingredients-label">
+                              Ingredient {{ index + 1 }} and quantity
+                            </label>
+
+                            <ng-container *ngIf="!showAddedIngredient[index]; else customIngredient">
+                              <div class="ingredient-controls">
+                                <p-select
+                                [options]="filterOptions['ingredients']"
+                                formControlName="name"
+                                optionLabel="name"
+                                [placeholder]="placeholders['ingredients']"
+                                [showClear]="true"
+                                  ></p-select>
+
+                                  <p-float-label variant="on">
+                                    <input type="text" pInputText formControlName="quantity" class="quantity-input"  />
+                                    <label for="on_label">Insert quantity</label>
+                                  </p-float-label>
+
+                                  <p-button icon="pi pi-plus" (click)="openIngredientDialog(index)" class="p-button-sm"></p-button>
+                                </div>
+                              </ng-container>
+
+                              <ng-template #customIngredient>
+                              <div class="ingredient-controls">
+                                <input type="text" pInputText formControlName="name" class="new-ingredient" />
+                                <input type="text" pInputText formControlName="quantity" class="new-quantity" />
+                                <p-button icon="pi pi-times" (click)="removeIngredient(index)" class="p-button-sm"></p-button>
+                              </div>
+                            </ng-template>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                  <p-dialog [(visible)]="ingredientDialog" header="Add a new ingredient" [modal]="true" [closable]="false">
+                    <div class="inputs-dialog" [formGroup]="selectedIngredientGroup">
+                      <p-float-label variant="on">
+                        <input type="text" pInputText formControlName="name" />
+                        <label for="on_label">Insert new ingredient</label>
+                      </p-float-label>
+                      <p-float-label variant="on">
+                        <input type="text" pInputText formControlName="quantity" />
+                        <label for="on_label">Insert quantity</label>
+                      </p-float-label>
+                      <div class="buttons-dialog">
+                        <p-button label="Cancel" icon="pi pi-times" (click)="ingredientDialog = false" severity="secondary"></p-button>
+                        <p-button label="Add" icon="pi pi-check" (click)="addIngredient()" ></p-button>
+                      </div>
+                    </div>
+                  </p-dialog>
+                 <!-- number chosen before of select with ingredients and + next to it to add an ingredient if missing -->
+              </div>
+
+              <!-- Categories -->
+              <form [formGroup]="selectedForm">
+                <div class="info-section categories">
+                  <h3>Type</h3>
+                  <p-select [options]="filterOptions['type']" formControlName="type" [placeholder]="placeholders['type']" optionLabel="name"></p-select>
+                  <h3>Glass</h3>
+                  <p-select [options]="filterOptions['glass']" formControlName="glass" [placeholder]="placeholders['glass']" optionLabel="name"></p-select>
+                  <h3>Alcoholic</h3>
+                  <p-select [options]="filterOptions['alcoholic']" formControlName="alcoholic" [placeholder]="placeholders['alcoholic']" optionLabel="name"></p-select>
+                </div>
+              </form>
+            </div>
+
+            <p-divider></p-divider>
+
+            <!-- Instructions under both -->
+            <div class="instructions">
+              <form [formGroup]="selectedForm">
+                <p-floatlabel variant="on">
+                  <textarea pTextArea id="instructions-text" formControlName="instructions" rows="5" cols="30" style="resize: none" class="instructions-textarea"></textarea>
+                  <label for="on_label">Instructions</label>
+                </p-floatlabel>
+              </form>
+            </div>
+            <div class="create-button">
+              <p-button label="Create" icon="pi pi-check" (click)="createCocktail()" ></p-button>
+              <p-button label="Clear all" icon="pi pi-times" (click)="clearAll()"severity="secondary" ></p-button>
+            </div>
+          </div>
+        </div>
+      </p-card>
+    </div>
+  </div>
+
+</ng-container>
+
+<ng-template #notLoggedIn>
+  <div class="not-logged-message">
+    <p-dialog class="dialog" [header]="dialogHeaderLogIn" [(visible)]="loginVisible" [style]="{width: 'width', minWidth: 'minWidth'}" [closable]="false">
+      <p>Please log in to search for cocktails 🍸</p>
+      <p-button label="Login" icon="pi pi-sign-in" (onClick)="redirectHome()"></p-button>
+    </p-dialog>
+  </div>
+</ng-template>
