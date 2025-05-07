@@ -22,21 +22,29 @@
       <p-card class="cocktail-card" [style]="{ overflow: 'hidden' }">
         <div class="card-content">
           <!-- Left: Image -->
+
           <div class="image-side">
-            <div class="image-wrapper">
-              <p-toast />
-              <p-fileupload #fu mode="basic" chooseLabel="Choose"
-                chooseIcon="pi pi-upload" name="demo[]" [auto]="true"
-                url="https://www.primefaces.org/cdn/api/upload.php"
-                accept="image/*" maxFileSize="1000000" (onUpload)="uploadFile($event)" />
-            </div>
+            <form [formGroup]="selectedForm">
+
+              <div class="image-wrapper">
+                <p-toast />
+                <div class="p-inputgroup">
+                  <input type="text" pInputText placeholder="Enter image URL" formControlName="image" />
+                </div>
+
+                <!-- Optional: Image preview -->
+                <div *ngIf="selectedForm.value.image" class="image-preview">
+                  <img [src]="selectedForm.value.image" alt="Image Preview" style="max-width: 100%; margin-top: 10px;" />
+                </div>
+              </div>
+
+            </form>
           </div>
 
           <!-- Right: Info in 2 columns + instructions below -->
           <div class="info-container">
             <div class="top-info">
               <!-- Ingredients -->
-
               <div class="info-section ingredients">
                 <div class="input-number-label">
                   <p-fluid>
@@ -58,7 +66,7 @@
                 </div>
                 <form [formGroup]="selectedForm">
                   <div formArrayName="ingredientsList">
-
+                    <h3 class="ingredient-title">Choose an existing ingredient or add a new one</h3>
                     <div *ngFor="let group of ingredientsList.controls; let index = index" [formGroupName]="index">
                       <div class="ingredient-selectors">
 

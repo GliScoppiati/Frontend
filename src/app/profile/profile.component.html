@@ -8,79 +8,98 @@
     </div>
   </div>
   <div class="profile-container">
-    <!-- Tab Buttons -->
-    <div class="tab-buttons">
-      <p-button
+    <div class="layout-wrapper">
+
+      <!-- Tab Buttons -->
+      <div class="tab-buttons-column">
+        <p-button
         label="Details"
         [class]="selectedMenu === 'details' ? 'p-button-primary' : 'p-button-outlined'"
         (click)="selectMenu('details')"
+        severity="secondary"
       ></p-button>
 
       <p-button
         label="Favorites"
         [class]="selectedMenu === 'favorites' ? 'p-button-primary' : 'p-button-outlined'"
         (click)="selectMenu('favorites')"
-      ></p-button>
+        severity="secondary"
+        ></p-button>
+
+        <p-button
+        label="Privacy and data"
+        [class]="selectedMenu === 'privacy' ? 'p-button-primary' : 'p-button-outlined'"
+        (click)="selectMenu('privacy')"
+        severity="secondary"
+        ></p-button>
     </div>
 
     <!-- Content Display -->
     <div class="content-wrapper">
       <!-- DETAILS -->
-      <p-card *ngIf="selectedMenu === 'details'" header="Your Profile Details">
+      <p-card *ngIf="selectedMenu === 'details'" header="Your Profile Details" class="details-card">
         <form [formGroup]="profileForm" class="details-form">
+
           <div class="form-group">
-            <label for="firstName"><strong>First name</strong></label>
-            <input pInputText id="firstName" formControlName="firstName" />
+            <p-float-label variant="on">
+              <input pInputText id="firstName" formControlName="firstName" />
+              <label for="firstName"><strong>First name</strong></label>
+            </p-float-label>
           </div>
 
           <div class="form-group">
-            <label for="lastName"><strong>Last name</strong></label>
-            <input pInputText id="lastName" formControlName="lastName" />
+            <p-float-label variant="on">
+              <input pInputText id="lastName" formControlName="lastName" />
+              <label for="lastName"><strong>Last name</strong></label>
+            </p-float-label>
           </div>
 
           <div class="form-group">
-            <label for="birthDate"><strong>Birthdate</strong></label>
-            <p-datepicker view="month" dateFormat="mm/yy" [readonlyInput]="true" formControlName="birthDate" />
+            <p-float-label variant="on">
+              <p-datepicker id="birthDate" view="month" dateFormat="mm/yy" [readonlyInput]="true" formControlName="birthDate"></p-datepicker>
+              <label for="birthDate"><strong>Birthdate</strong></label>
+            </p-float-label>
           </div>
 
           <div class="form-group">
-            <label for="email"><strong>Email</strong></label>
-            <input pInputText [disabled]="true" id="email" formControlName="email" />
+            <p-float-label variant="on">
+              <input pInputText id="email" formControlName="email" />
+              <label for="email"><strong>Email</strong></label>
+            </p-float-label>
           </div>
 
           <div class="form-group">
-            <label for="username"><strong>Username</strong></label>
-            <input pInputText [disabled]="true" id="username" formControlName="username" />
+            <p-float-label variant="on">
+              <input pInputText id="username" formControlName="username" />
+              <label for="username"><strong>Username</strong></label>
+            </p-float-label>
           </div>
 
-          <div class="form-group">
-            <label for="alcoholAllowed"><strong>Alcohol allowed</strong></label>
-            <input pInputText id="alcoholAllowed" formControlName="alcoholAllowed" />
-          </div>
 
-          <div class="form-group">
-            <label for="consentProfiling"><strong>Consent for profiling</strong></label>
-            <input pInputText id="consentProfiling" formControlName="consentProfiling" />
-          </div>
         </form>
+
+        <div class="changes-btn">
+          <p-button label="Delete Account" (click)="deleteAccount()" severity="danger"></p-button>
+          <p-button label="Save Changes" (click)="saveChanges()" severity="success"></p-button>
+        </div>
       </p-card>
 
       <!-- FAVORITES -->
       <div *ngIf="selectedMenu === 'favorites'" class="favorites-grid">
         <p-card
-          *ngFor="let card of favorites"
-          [style]="{ width: '300px', overflow: 'hidden' }"
+        *ngFor="let card of favorites"
+        [style]="{ width: '300px', overflow: 'hidden' }"
         >
           <ng-template #header>
             <p-image
-              alt="Cocktail card"
-              class="image-card"
+            alt="Cocktail card"
+            class="image-card"
               [src]="card.image"
               [style]="{ cursor: 'pointer' }"
               width="300"
               [preview]="true"
               (click)="displayCardPage(card.id)"
-            >
+              >
               <ng-template #indicator>
                 <i class="card-indicator">Open</i>
               </ng-template>
@@ -91,8 +110,8 @@
             <div class="title-container">
               <span>{{ card.name }}</span>
               <p-button
-                class="fav-button"
-                [icon]="card.isFavorite ? 'pi pi-heart-fill' : 'pi pi-heart'"
+              class="fav-button"
+              [icon]="card.isFavorite ? 'pi pi-heart-fill' : 'pi pi-heart'"
                 [style]="{ color: 'red' }"
                 (click)="addToFavorites(card.id); card.isFavorite = !card.isFavorite"
                 styleClass="w-full"
@@ -114,9 +133,55 @@
       <div class="paginator" *ngIf="favorites.length > 5 && selectedMenu === 'favorites'">
         <p-paginator (onPageChange)="onPageChange($event)" [first]="first" [rows]="rows" [totalRecords]="favorites.length" [rowsPerPageOptions]="rowsPerPageOptions" />
       </div>
+
+      <div class="privacy">
+        <!-- PRIVACY AND DATA -->
+        <p-card *ngIf="selectedMenu === 'privacy'" header="Privacy and Data" class="privacy-card">
+          <p>Manage your privacy settings here.</p>
+
+          <form [formGroup]="profileForm">
+
+            <div class="checkbox-group">
+              <div class="checkbox-item">
+                <p-checkbox
+                inputId="alcoholAllowed"
+                formControlName="alcoholAllowed"
+                binary="true">
+                </p-checkbox>
+                <p-fieldset legend="Alcoholic filter" class="checkbox-fieldset">
+                  <p class="m-0">
+                    Use this filter to control whether cocktails shown include alcohol.
+                    Select your preference based on dietary or lifestyle choices.
+                    This helps tailor results to your personal consumption settings.
+                  </p>
+                </p-fieldset>
+              </div>
+
+              <div class="checkbox-item">
+                <p-checkbox
+                inputId="consentProfiling"
+                  formControlName="consentProfiling"
+                  binary="true">
+                </p-checkbox>
+                <p-fieldset legend="Profiling consense" class="checkbox-fieldset">
+                  <p class="m-0">
+                    By consenting to profiling, you allow us to analyze your preferences and behavior.
+                    This helps us provide personalized recommendations and improve your experience.
+                    You can withdraw your consense at any time.
+                  </p>
+                </p-fieldset>
+              </div>
+            </div>
+          </form>
+
+          <div class="changes-btn">
+            <p-button label="Delete Account" (click)="deleteAccount()" severity="danger"></p-button>
+            <p-button label="Save Changes" (click)="saveChanges()" severity="success"></p-button>
+          </div>
+          </p-card>
+        </div>
+      </div>
     </div>
   </div>
-
-
 
 </div>

@@ -6,7 +6,6 @@ import { InputNumber } from 'primeng/inputnumber';
 import { Button } from 'primeng/button';
 import { Select } from 'primeng/select';
 import { Toast } from 'primeng/toast';
-import { FileUpload, UploadEvent } from 'primeng/fileupload';
 import { Card } from 'primeng/card';
 import { Divider } from 'primeng/divider';
 import { Dialog } from 'primeng/dialog';
@@ -28,7 +27,7 @@ interface Filter {
   imports: [
     LeftButtonsComponent, ProfileButtonComponent,
     CommonModule, Button, Card, Divider, ReactiveFormsModule,
-    FileUpload, Toast, Select, InputNumber, Dialog, FormsModule,
+    Toast, Select, InputNumber, Dialog, FormsModule,
     Fluid, InputText, FloatLabel, TextareaModule
   ],
   standalone: true,
@@ -82,9 +81,9 @@ export class CreateComponent implements OnInit {
 
   // * cocktail submission
   submissionAPI: string = 'http://localhost:5000/submission/submissions';
-  messageService: any;
 
   constructor(
+    private messageService: MessageService,
     private authService: AuthService,
     private formBuilder: FormBuilder,
     private router: Router,
@@ -140,8 +139,8 @@ export class CreateComponent implements OnInit {
     });
   }
 
-  uploadFile(event: UploadEvent) {
-
+  previewImage() {
+    console.log('Image URL:', this.selectedForm.value.image);
   }
 
   getNumberOfIngredients(): number[] {
@@ -210,27 +209,28 @@ export class CreateComponent implements OnInit {
   }
 
   createCocktail() {
-    console.log('cocktail created!!!', this.selectedForm.value);
     this.http.post(this.submissionAPI,
       {
         name: this.selectedForm.value.name,
         instructions: this.selectedForm.value.instructions,
-        glass: this.selectedForm.value.glass,
-        category: this.selectedForm.value.type,
-        alcoholic: this.selectedForm.value.alcoholic === 'Alcoholic' ? true : false,
-        imageUrl: null,
+        glass: this.selectedForm.value.glass.name,
+        category: this.selectedForm.value.type.name,
+        isAlcoholic: (this.selectedForm.value.alcoholic.name === 'Alcoholic') as boolean,
+        imageUrl: this.selectedForm.value.image,
         ingredients: this.selectedForm.value.ingredientsList.map((ingredient: any) => ({
-          ingredientId: ingredient.id,
-          proposedName: ingredient.name,
+          ingredientId: ingredient.id ? ingredient.id : null,
+          proposedName: ingredient.id ? null : ingredient.name,
           quantity: ingredient.quantity
         }))
-      }
+      },
+      { observe: 'response' }
     ).subscribe({
-      next: () => {
+      next: (res: any) => {
+        console.log('cocktail created', res.status);
         this.messageService.add({
           severity: 'success',
-          summary: 'Logout successful',
-          detail: 'You have been logged out',
+          summary: 'Success',
+          detail: 'Submission created successfully, waiting for approval',
           life: 3000,
           closable: true,
         });

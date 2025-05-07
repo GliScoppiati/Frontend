@@ -25,15 +25,34 @@
   gap: 1.5rem;
 }
 
-.tab-buttons {
+.layout-wrapper {
   display: flex;
-  gap: 0.5rem;
+  width: 100%;
+  max-width: 90rem;
+  gap: 2rem;
+  margin-top: 5rem;
+  align-items: flex-start;
+}
+
+.tab-buttons-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 200px;
+
 }
 
 .content-wrapper {
+  flex: 1; // fills remaining space
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.details-card,
+.privacy-card {
+  max-width: 600px;
   width: 100%;
-  max-width: 64rem;
-  margin-top: 1rem;
 }
 
 .details-form {
@@ -45,6 +64,53 @@
 .form-group {
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 10px;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem; // space between the checkboxes
+  align-items: flex-start;
+  flex-wrap: wrap; // optional: wraps them on small screens
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; // space between checkbox and label
+}
+
+.checkbox-fieldset {
+  border: none;
+  padding: 0;
+  max-width: 500px;
+}
+
+
+textarea,
+input,
+.p-inputtext,
+.p-inputtextarea {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  outline: none;
+}
+
+.changes-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+  gap: 1rem;
+}
+
+.favorites-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .favorites-grid {
@@ -52,7 +118,7 @@
   gap: 1rem;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   justify-content: center;
-  padding: 1rem;
+  padding: 1rem 0;
 }
 
 .title-container {

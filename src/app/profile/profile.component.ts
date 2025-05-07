@@ -7,8 +7,11 @@ import { Image } from 'primeng/image';
 import { AuthService, HistoryService, LeftButtonsComponent, ProfileButtonComponent } from 'shared';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
 import { Paginator, PaginatorState } from 'primeng/paginator';
+import { FloatLabel } from 'primeng/floatlabel';
+import { InputText } from 'primeng/inputtext';
+import { Checkbox } from 'primeng/checkbox';
+import { Fieldset } from 'primeng/fieldset';
 import { Router } from '@angular/router';
 
 interface Favorite {
@@ -24,7 +27,7 @@ interface Favorite {
     LeftButtonsComponent, Button, CommonModule,
     Card, PanelModule, ProfileButtonComponent,
     ReactiveFormsModule, DatePicker, Paginator,
-    Image
+    Image, FloatLabel, InputText, Checkbox, Fieldset
   ],
   standalone: true,
   templateUrl: './profile.component.html',
@@ -33,6 +36,7 @@ interface Favorite {
 export class ProfileComponent implements OnInit {
 
   // * paginator
+  // TODO: fix the paginator
   paginatedFavorites: Favorite[] = [];
   rowsPerPageOptions = [5, 10, 15];
   first: number = 0;
@@ -110,7 +114,17 @@ export class ProfileComponent implements OnInit {
     private formBuilder: FormBuilder,
     private historyService: HistoryService,
     private router: Router,
-  ) {}
+  ) {
+    this.profileForm = this.formBuilder.group({
+      firstName: [''],
+      lastName: [''],
+      birthDate: [null],
+      email: [{value: '', disabled: true}],
+      username: [{value: '', disabled: true}],
+      alcoholAllowed: [false],
+      consentProfiling: [false],
+    });
+  }
 
 
   ngOnInit(): void {
@@ -118,14 +132,14 @@ export class ProfileComponent implements OnInit {
     this.authService.getUserProfileData().subscribe({
       next: (response) => {
         console.log('User profile data', response);
-        this.profileForm = this.formBuilder.group({
-          firstName: [response.firstName],
-          lastName: [response.lastName],
-          birthDate: [new Date(response.birthDate)],
-          email: [{value: response.email, disabled: true}],
-          username: [{value: response.username, disabled: true}],
-          alcoholAllowed: [response.alcoholAllowed],
-          consentProfiling: [response.consentProfiling],
+        this.profileForm.patchValue({
+          firstName: response.firstName,
+          lastName: response.lastName,
+          birthDate: new Date(response.birthDate),
+          email: response.email,
+          username: response.username,
+          alcoholAllowed: response.alcoholAllowed,
+          consentProfiling: response.consentProfiling,
         });
       },
       error: (error) => {
@@ -151,6 +165,14 @@ export class ProfileComponent implements OnInit {
   }
 
   addToFavorites(id: string) {
+
+  }
+
+  deleteAccount() {
+
+  }
+
+  saveChanges() {
 
   }
 

@@ -25,7 +25,17 @@ export class AuthService {
 
   updateProfile(firstName: string, lastName: string, birthDate: string, alcoholAllowed: boolean, consentGdpr:  boolean, consentProfiling: boolean): Observable<any> {
     const userId = this.getUserId();
-    return this.http.put(`${this.profileAPI}${userId}`, { userId, firstName, lastName, birthDate, alcoholAllowed, consentGdpr, consentProfiling });
+    console.log('userId', userId);
+    return this.http.put(`${this.profileAPI}${userId}`,
+      {
+        userId: userId,
+        firstName: firstName,
+        lastName: lastName,
+        birthDate: birthDate,
+        alcoholAllowed: alcoholAllowed,
+        consentGdpr: consentGdpr,
+        consentProfiling: consentProfiling
+      });
   }
 
   logout(refreshToken: string): Observable<any> {

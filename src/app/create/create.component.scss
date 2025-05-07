@@ -42,11 +42,12 @@
     .cocktail-card {
       display: flex;
       flex-direction: column;
-      padding: 1rem;
+      padding: 0 5rem;
 
       .card-content {
         display: flex;
         flex-direction: column;
+        padding: 0 1rem;
         gap: 2rem;
 
         @media (min-width: 768px) {
@@ -57,23 +58,30 @@
           flex: 1;
           display: flex;
           justify-content: center;
-          align-items: center;
+          align-items: flex-start;
 
           .image-wrapper {
             width: 100%;
-            max-width: 300px;
+            max-width: 150px;
+          }
+
+          .image-preview {
+            width: 100%;
+            max-width: 150px;
+            height: 150px;
+            border-radius: 4px;
           }
         }
 
         .info-container {
-          flex: 2;
+          flex: 1;
           display: flex;
           flex-direction: column;
           gap: 1.5rem;
 
           .top-info {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             gap: 2rem;
 
             @media (min-width: 1024px) {
@@ -132,6 +140,7 @@
                   align-items: center;
                   gap: 1rem;
                   margin-top: 10px;
+                  max-width: 800px;
 
                   p-select {
                     flex: 1;
@@ -139,12 +148,19 @@
                 }
               }
 
+              .ingredient-title {
+                margin-top: 0;
+                font-size: 20px;
+              }
+
               &.categories {
                 display: flex;
                 flex-direction: column;
+                align-items: center;
+                margin-left: -10rem;
                 gap: 1rem;
                 width: 100%;
-                max-width: 500px;
+                max-width: 800px;
               }
 
               .inputs-dialog {
