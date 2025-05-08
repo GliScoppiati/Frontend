@@ -8,7 +8,6 @@ import { Image } from 'primeng/image';
 import { Card } from 'primeng/card';
 import { Divider } from 'primeng/divider';
 import { TabsModule } from 'primeng/tabs';
-import { Toast } from 'primeng/toast';
 import { CarouselModule } from 'primeng/carousel';
 import { AuthService, LeftButtonsComponent, ProfileButtonComponent, HistoryService } from 'shared';
 

@@ -13,6 +13,14 @@ import { InputText } from 'primeng/inputtext';
 import { Checkbox } from 'primeng/checkbox';
 import { Fieldset } from 'primeng/fieldset';
 import { Router } from '@angular/router';
+import { Dialog } from 'primeng/dialog';
+
+interface Submission {
+  id: string;
+  name: string;
+  image: string;
+  status: string;
+}
 
 interface Favorite {
   id: string;
@@ -27,13 +35,24 @@ interface Favorite {
     LeftButtonsComponent, Button, CommonModule,
     Card, PanelModule, ProfileButtonComponent,
     ReactiveFormsModule, DatePicker, Paginator,
-    Image, FloatLabel, InputText, Checkbox, Fieldset
+    Image, FloatLabel, InputText, Checkbox, Fieldset,
+    Dialog
   ],
   standalone: true,
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
 })
 export class ProfileComponent implements OnInit {
+
+  private gdpr: boolean = true;
+
+  // * submissions
+  submitted: Submission[] = [];
+  paginatedSubmissions: Submission[] = [];
+
+  // * dialog Not Logged in
+  visible: boolean = true;
+  dialogHeader: string = 'Cannot access to this page';
 
   // * paginator
   // TODO: fix the paginator
@@ -44,11 +63,6 @@ export class ProfileComponent implements OnInit {
 
   // TODO: add the update profile function
   selectedMenu: string = 'details';
-
-  menuItems = [
-    { key: 'details', label: 'Details', icon: 'pi pi-user' },
-    { key: 'favorites', label: 'Favorites', icon: 'pi pi-heart-fill' },
-  ]
 
   profileForm!: FormGroup;
 
@@ -129,6 +143,10 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit(): void {
 
+    // * initialize the favorites in order to see them
+    this.paginatedFavorites = this.favorites.slice(this.first, this.first + this.rows);
+
+    // * get profile data
     this.authService.getUserProfileData().subscribe({
       next: (response) => {
         console.log('User profile data', response);
@@ -141,11 +159,39 @@ export class ProfileComponent implements OnInit {
           alcoholAllowed: response.alcoholAllowed,
           consentProfiling: response.consentProfiling,
         });
+
+        // * set the user data to save them in case of discard changes
+        this.user.firstName = response.firstName;
+        this.user.lastName = response.lastName;
+        this.user.birthDate = response.birthDate;
+        this.user.email = response.email;
+        this.user.username = response.username;
+        this.user.alcoholAllowed = response.alcoholAllowed;
+        this.user.consentProfiling = response.consentProfiling;
       },
       error: (error) => {
         console.error('Error fetching user profile data', error);
       }
     });
+
+    // * get user's submissions
+    this.authService.getSubmissions().subscribe({
+      next: (response) => {
+        console.log('User submissions', response);
+        this.submitted = response.map((submission: any) => ({
+          id: submission.id,
+          name: submission.name,
+          image: submission.imageUrl, // Assuming the API returns an image URL
+          status: submission.status
+        }));
+        this.paginatedSubmissions = this.submitted.slice(this.first, this.first + this.rows);
+      },
+      error: (error) => {
+        console.error('Error fetching user submissions', error);
+      }
+    });
+
+    // * get user's favorites
 
   }
 
@@ -156,7 +202,10 @@ export class ProfileComponent implements OnInit {
   onPageChange(event: PaginatorState) {
     this.first = event.first ?? 0;
     this.rows = event.rows ?? 5;
-    this.paginatedFavorites = this.favorites.slice(this.first, this.first + this.rows);
+    if (this.selectedMenu === 'favorites')
+      this.paginatedFavorites = this.favorites.slice(this.first, this.first + this.rows);
+    else if (this.selectedMenu === 'submitted')
+      this.paginatedSubmissions = this.submitted.slice(this.first, this.first + this.rows);
   }
 
   displayCardPage(id: string) {
@@ -164,15 +213,63 @@ export class ProfileComponent implements OnInit {
     this.router.navigate(['/card'], { queryParams: { cocktailId: id} });
   }
 
-  addToFavorites(id: string) {
+  userIsLogged(): boolean {
+    return this.authService.isLoggedIn();
+  }
+
+  redirectHome() {
+    this.router.navigate(['/home']);
+  }
+
+  manageFavorite(id: string) {
 
   }
 
   deleteAccount() {
+    this.authService.deleteProfile().subscribe({
+      next: (response: any) => {
+        console.log('Account deleted', response);
+        this.authService.clearTokens();
+        this.router.navigate(['/home']);
+      },
+      error: (error) => {
+        if (error.status === 404)
+          console.error('Account not found', error);
+        else
+          console.error('Error deleting account', error);
+      }
+    })
+  }
 
+  discardChanges() {
+    this.profileForm.patchValue({
+      firstName: this.user.firstName,
+      lastName: this.user.lastName,
+      birthDate: new Date(this.user.birthDate),
+      alcoholAllowed: this.user.alcoholAllowed,
+      consentProfiling: this.user.consentProfiling
+    });
   }
 
   saveChanges() {
+    this.authService.updateProfile(
+      this.profileForm.value.firstName,
+      this.profileForm.value.lastName,
+      this.profileForm.value.birthDate,
+      this.profileForm.value.alcoholAllowed,
+      this.gdpr,
+      this.profileForm.value.consentProfiling
+
+    ).subscribe({
+      next: (response) => {
+        console.log('Profile updated', response);
+        this.redirectHome();
+      },
+      error: (error) => {
+        console.error('Error updating profile', error);
+      }
+    }
+    )
 
   }
 

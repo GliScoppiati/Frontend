@@ -6,7 +6,7 @@ import { RouterOutlet } from '@angular/router';
   imports: [RouterOutlet],
   standalone: true,
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrl: './app.component.scss',
 })
 export class AppComponent {
   title = 'Cocktail App';

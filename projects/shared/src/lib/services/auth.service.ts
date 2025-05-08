@@ -9,6 +9,7 @@ import { jwtDecode } from 'jwt-decode';
 export class AuthService {
   private backendAPI: string = 'http://localhost:5000/auth/api/auth/';
   private profileAPI: string = 'http://localhost:5000/userprofile/api/userprofile/';
+  private submissionsAPI: string = 'http://localhost:5000/submission/submissions/my';
 
   private loggedIn = new BehaviorSubject<boolean>(this.isLoggedIn());
   loggedIn$ = this.loggedIn.asObservable();
@@ -25,7 +26,6 @@ export class AuthService {
 
   updateProfile(firstName: string, lastName: string, birthDate: string, alcoholAllowed: boolean, consentGdpr:  boolean, consentProfiling: boolean): Observable<any> {
     const userId = this.getUserId();
-    console.log('userId', userId);
     return this.http.put(`${this.profileAPI}${userId}`,
       {
         userId: userId,
@@ -36,6 +36,11 @@ export class AuthService {
         consentGdpr: consentGdpr,
         consentProfiling: consentProfiling
       });
+  }
+
+  deleteProfile(): Observable<any> {
+    const userId = this.getUserId();
+    return this.http.delete(`${this.profileAPI}${userId}`);
   }
 
   logout(refreshToken: string): Observable<any> {
@@ -52,6 +57,27 @@ export class AuthService {
     return this.http.get(`${this.profileAPI}${this.getUserId()}`);
   }
 
+  getSubmissions(): Observable<any> {
+    return this.http.get(`${this.submissionsAPI}`);
+  }
+
+  // TODO: wait for API to use
+  addToFavorites(cocktailId: string): Observable<any> {
+    const userId = this.getUserId();
+    return this.http.post(`${this.profileAPI}${userId}/favorites`, { cocktailId });
+  }
+
+  removeFromFavorites(cocktailId: string): Observable<any> {
+    const userId = this.getUserId();
+    return this.http.delete(`${this.profileAPI}${userId}/favorites/${cocktailId}`);
+  }
+
+  // TODO: update with the real API
+  getFavorites(): Observable<any> {
+    const userId = this.getUserId();
+    return this.http.get(`${this.profileAPI}${userId}/favorites`);
+  }
+
   saveTokens(JwtToken?: string, refreshToken?: string, userId?: string): void {
     if  (userId)
       sessionStorage.setItem('userId', userId);
@@ -59,7 +85,6 @@ export class AuthService {
       sessionStorage.setItem('JwtToken', JwtToken);
     if (refreshToken)
       sessionStorage.setItem('refreshToken', refreshToken);
-    console.log('Tokens saved to session storage', JwtToken, refreshToken, userId);
   }
 
   getUserId(): string | null {
@@ -70,7 +95,6 @@ export class AuthService {
     const userId = this.getUserId();
     this.http.get(`${this.profileAPI}${userId}`).subscribe((response: any ) => {
       const consentProfiling = response.consentProfiling;
-      console.log('consentProfiling', consentProfiling);
       return consentProfiling;
     });
     return false;
@@ -80,7 +104,6 @@ export class AuthService {
     const userId = this.getUserId();
     this.http.get(`${this.profileAPI}${userId}`).subscribe((response: any ) => {
       const alcoholAllowed = response.alcoholAllowed;
-      console.log('alcoholAllowed', alcoholAllowed);
       return alcoholAllowed;
     });
     return false;
@@ -100,11 +123,14 @@ export class AuthService {
     sessionStorage.removeItem('refreshToken');
   }
 
-  // TODO: make it private
-  isTokenExpired(token: string): boolean {
+  private checkToken(token: string): boolean {
     const decoded: any = jwtDecode(token);
     const now = Math.floor(Date.now() / 1000);
     return decoded.exp < now;
+  }
+
+  isTokenExpired(token: string): boolean {
+    return this.checkToken(token);
   }
 
   isLoggedIn(): boolean {

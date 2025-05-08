@@ -55,6 +55,12 @@
   width: 100%;
 }
 
+.privacy {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 .details-form {
   display: flex;
   flex-direction: column;
@@ -113,7 +119,8 @@ input,
   flex-direction: column;
 }
 
-.favorites-grid {
+.favorites-grid,
+.submitted-grid {
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService, LeftButtonsComponent, ProfileButtonComponent } from 'shared';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, FormControl, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, FormControl, FormArray, Validators, ValidatorFn, ValidationErrors, AbstractControl } from '@angular/forms';
 import { InputNumber } from 'primeng/inputnumber';
 import { Button } from 'primeng/button';
 import { Select } from 'primeng/select';
-import { Toast } from 'primeng/toast';
 import { Card } from 'primeng/card';
 import { Divider } from 'primeng/divider';
 import { Dialog } from 'primeng/dialog';
@@ -16,6 +15,8 @@ import { Fluid } from 'primeng/fluid';
 import { InputText } from 'primeng/inputtext';
 import { FloatLabel } from 'primeng/floatlabel';
 import { TextareaModule } from 'primeng/textarea';
+import { Image } from 'primeng/image';
+import { Toast } from 'primeng/toast';
 
 interface Filter {
   id?: string;
@@ -27,8 +28,8 @@ interface Filter {
   imports: [
     LeftButtonsComponent, ProfileButtonComponent,
     CommonModule, Button, Card, Divider, ReactiveFormsModule,
-    Toast, Select, InputNumber, Dialog, FormsModule,
-    Fluid, InputText, FloatLabel, TextareaModule
+    Select, InputNumber, Dialog, FormsModule, Image,
+    Fluid, InputText, FloatLabel, TextareaModule, Toast
   ],
   standalone: true,
   templateUrl: './create.component.html',
@@ -58,7 +59,7 @@ export class CreateComponent implements OnInit {
 
   placeholders: { [key: string]: string } = {
     ingredients: 'Select ingredients',
-    measure: 'Insert measure',
+    measure: 'Select measure',
     glass: 'Select glass',
     type: 'Select type',
     alcoholic: 'Select alcoholic'
@@ -69,7 +70,23 @@ export class CreateComponent implements OnInit {
     ingredients: [].map(item => ({ name: item })),
     glass: [].map(item => ({ name: item })),
     type: [].map(item => ({ name: item })),
-    alcoholic: [].map(item => ({ name: item }))
+    alcoholic: [].map(item => ({ name: item })),
+    measures: [
+      { name: 'oz' },
+      { name: 'cl' },
+      { name: 'ml' },
+      { name: 'tbsp' },
+      { name: 'tsp' },
+      { name: 'cup' },
+      { name: 'dash' },
+      { name: 'pinch' },
+      { name: 'slice' },
+      { name: 'sprig' },
+      { name: 'piece' },
+      { name: 'bottle' },
+      { name: 'can' },
+      { name: 'glass' },
+    ]
   };
 
 
@@ -82,6 +99,7 @@ export class CreateComponent implements OnInit {
   // * cocktail submission
   submissionAPI: string = 'http://localhost:5000/submission/submissions';
 
+
   constructor(
     private messageService: MessageService,
     private authService: AuthService,
@@ -90,24 +108,26 @@ export class CreateComponent implements OnInit {
     private http: HttpClient,
   ) {
     this.selectedForm = this.formBuilder.group({
-      name: [''],
-      image: [''],
+      name: ['', Validators.required],
+      image: ['', Validators.required],
       ingredientsList: this.formBuilder.array([]),
-      glass: [''],
-      type: [''],
-      alcoholic: [''],
-      instructions: ['']
-    });
+      glass: ['', Validators.required],
+      type: ['', Validators.required],
+      alcoholic: ['', Validators.required],
+      instructions: ['', Validators.required],
+    }, { validators: this.atLeastOneFieldValidator() });
 
   }
 
+  private initialValue: number = 3;
+
   ngOnInit() {
     this.ingredientsNumbers = new FormGroup({
-      number: this.formBuilder.control(3),
+      number: this.formBuilder.control(this.initialValue),
     });
 
     // * first time
-    this.setIngredientsLength(3);
+    this.setIngredientsLength(this.initialValue);
     this.ingredientExists = Array.from({ length: this.getNumberOfIngredients().length }, () => true);
     this.showAddedIngredient = Array.from({ length: this.getNumberOfIngredients().length }, () => false);
 
@@ -139,10 +159,6 @@ export class CreateComponent implements OnInit {
     });
   }
 
-  previewImage() {
-    console.log('Image URL:', this.selectedForm.value.image);
-  }
-
   getNumberOfIngredients(): number[] {
     const number = this.ingredientsNumbers.get('number')?.value;
     return Array.from({ length: number });
@@ -156,14 +172,26 @@ export class CreateComponent implements OnInit {
     this.router.navigate(['/home']);
   }
 
+  // * getter for the ingredient list formgroup
   get selectedIngredientGroup(): FormGroup {
     return this.ingredientsList.at(this.selectedIngredientIndex) as FormGroup;
   }
 
+  // * getter for the ingredients list form array
   get ingredientsList(): FormArray {
     return this.selectedForm.get('ingredientsList') as FormArray;
   }
 
+  // * custom validator for id and name
+  atLeastOneFieldValidator(): ValidatorFn {
+    return (group: AbstractControl): ValidationErrors | null => {
+      const id = group.get('id')?.value;
+      const name = group.get('name')?.value;
+      return (!id && !name) ? { atLeastOneRequired: true } : null;
+    };
+  }
+
+  // * setter for ingredient list array length
   setIngredientsLength(length: number) {
     length = this.ingredientsList.length;
     if (length < this.getNumberOfIngredients().length) {
@@ -171,8 +199,9 @@ export class CreateComponent implements OnInit {
         this.ingredientsList.push(this.formBuilder.group({
           id: [''],
           name: [''],
-          quantity: ['']
-        }));
+          quantity: ['', Validators.required],
+          measure: ['', Validators.required],
+        }, { validators: this.atLeastOneFieldValidator() }));
       }
     } else if (length > this.getNumberOfIngredients().length) {
       for (let i = length; i > this.getNumberOfIngredients().length; i--) {
@@ -190,18 +219,23 @@ export class CreateComponent implements OnInit {
   }
 
   addIngredient() {
+    this.selectedIngredientGroup.get('quantity')
+      ?.setValue(this.selectedIngredientGroup.get('quantity')
+      ?.value + ' ' + this.selectedIngredientGroup.get('measure')?.value.name);
+
     this.showAddedIngredient[this.selectedIngredientIndex] = true
     this.ingredientDialog = !this.ingredientDialog;
   }
 
   removeIngredient(index: number) {
-    // TODO: remove from the list
+
     const groupToReset = this.ingredientsList.at(index) as FormGroup;
 
     groupToReset.patchValue({
       id: '',
       name: '',
-      quantity: ''
+      quantity: '',
+      measure: ''
     });
 
     this.ingredientExists[index] = true;
@@ -209,6 +243,17 @@ export class CreateComponent implements OnInit {
   }
 
   createCocktail() {
+    if (this.selectedForm.invalid) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Please fill all the required fields',
+        life: 3000,
+        closable: true,
+      });
+      return;
+    }
+
     this.http.post(this.submissionAPI,
       {
         name: this.selectedForm.value.name,
@@ -220,7 +265,7 @@ export class CreateComponent implements OnInit {
         ingredients: this.selectedForm.value.ingredientsList.map((ingredient: any) => ({
           ingredientId: ingredient.id ? ingredient.id : null,
           proposedName: ingredient.id ? null : ingredient.name,
-          quantity: ingredient.quantity
+          quantity: ingredient.quantity.includes(ingredient.measure.name) ? ingredient.quantity : ingredient.quantity + ' ' + ingredient.measure.name,
         }))
       },
       { observe: 'response' }
@@ -234,6 +279,7 @@ export class CreateComponent implements OnInit {
           life: 3000,
           closable: true,
         });
+        this.redirectHome();
       },
       error: (error: any) => {
         if (error.status === 401) {

@@ -1,5 +1,5 @@
+<p-toast />
 <div class="buttons">
-  <p-toast />
   <div class="firstButton">
     <p-button *ngIf="!visibles['isLoggedIn']" (click)="setLoginVisible()" [label]="loginButton" severity="primary">
       <ng-template pTemplate="icon">
@@ -119,7 +119,6 @@
     </p-dialog>
   </div>
   <div class="profileButton">
-    <p-toast />
     <p-split-button class="profile-menu" *ngIf="visibles['isLoggedIn']" label="Profile" [model]="items" />
     <p-dialog
       header="Privacy Policy"

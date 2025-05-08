@@ -16,10 +16,6 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 
-// TODO: look for texts that need to be dynamic since they will be translated
-// TODO: check post and get requests for login and register and remove the search bar if not logged in (with Stefano)
-// TODO: create home button
-
 @Component({
   selector: 'lib-profile-button',
   imports: [ButtonModule, Dialog, InputTextModule, AvatarModule,

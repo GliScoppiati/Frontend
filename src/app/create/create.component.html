@@ -1,4 +1,5 @@
 <ng-container *ngIf="userIsLogged(); else notLoggedIn">
+  <p-toast position="top-center"></p-toast>
   <div class="create-page">
     <div class="top-bar">
       <div class="left-section">
@@ -27,14 +28,9 @@
             <form [formGroup]="selectedForm">
 
               <div class="image-wrapper">
-                <p-toast />
-                <div class="p-inputgroup">
-                  <input type="text" pInputText placeholder="Enter image URL" formControlName="image" />
-                </div>
-
                 <!-- Optional: Image preview -->
                 <div *ngIf="selectedForm.value.image" class="image-preview">
-                  <img [src]="selectedForm.value.image" alt="Image Preview" style="max-width: 100%; margin-top: 10px;" />
+                  <p-image [src]="selectedForm.value.image" alt="Image Preview" width="350" />
                 </div>
               </div>
 
@@ -63,6 +59,15 @@
                       </p-inputnumber>
                     </form>
                   </p-fluid>
+
+                  <div class="p-inputgroup">
+                    <form [formGroup]="selectedForm">
+                      <p-float-label variant="on">
+                        <input type="text" pInputText formControlName="image" />
+                        <label for="on_label">Insert url of the image</label>
+                      </p-float-label>
+                    </form>
+                  </div>
                 </div>
                 <form [formGroup]="selectedForm">
                   <div formArrayName="ingredientsList">
@@ -86,9 +91,11 @@
                                   ></p-select>
 
                                   <p-float-label variant="on">
-                                    <input type="text" pInputText formControlName="quantity" class="quantity-input"  />
+                                    <input type="text" pInputText formControlName="quantity" class="quantity-input" />
                                     <label for="on_label">Insert quantity</label>
                                   </p-float-label>
+
+                                  <p-select [options]="filterOptions['measures']" formControlName="measure" [placeholder]="placeholders['measure']" optionLabel="name" [showClear]="true"  />
 
                                   <p-button icon="pi pi-plus" (click)="openIngredientDialog(index)" class="p-button-sm"></p-button>
                                 </div>
@@ -110,13 +117,14 @@
                   <p-dialog [(visible)]="ingredientDialog" header="Add a new ingredient" [modal]="true" [closable]="false">
                     <div class="inputs-dialog" [formGroup]="selectedIngredientGroup">
                       <p-float-label variant="on">
-                        <input type="text" pInputText formControlName="name" />
-                        <label for="on_label">Insert new ingredient</label>
+                        <input type="text" id="ingredient" pInputText formControlName="name" />
+                        <label for="ingredient">Insert new ingredient</label>
                       </p-float-label>
                       <p-float-label variant="on">
-                        <input type="text" pInputText formControlName="quantity" />
-                        <label for="on_label">Insert quantity</label>
+                        <input type="text" id="quantity" pInputText formControlName="quantity" />
+                        <label for="quantity">Insert quantity</label>
                       </p-float-label>
+                      <p-select [options]="filterOptions['measures']" formControlName="measure" [appendTo]="'body'" [placeholder]="placeholders['measure']" optionLabel="name" [showClear]="true" />
                       <div class="buttons-dialog">
                         <p-button label="Cancel" icon="pi pi-times" (click)="ingredientDialog = false" severity="secondary"></p-button>
                         <p-button label="Add" icon="pi pi-check" (click)="addIngredient()" ></p-button>
@@ -130,11 +138,11 @@
               <form [formGroup]="selectedForm">
                 <div class="info-section categories">
                   <h3>Type</h3>
-                  <p-select [options]="filterOptions['type']" formControlName="type" [placeholder]="placeholders['type']" optionLabel="name"></p-select>
+                  <p-select [options]="filterOptions['type']" formControlName="type" [placeholder]="placeholders['type']" optionLabel="name" [showClear]="true"></p-select>
                   <h3>Glass</h3>
-                  <p-select [options]="filterOptions['glass']" formControlName="glass" [placeholder]="placeholders['glass']" optionLabel="name"></p-select>
+                  <p-select [options]="filterOptions['glass']" formControlName="glass" [placeholder]="placeholders['glass']" optionLabel="name" [showClear]="true"></p-select>
                   <h3>Alcoholic</h3>
-                  <p-select [options]="filterOptions['alcoholic']" formControlName="alcoholic" [placeholder]="placeholders['alcoholic']" optionLabel="name"></p-select>
+                  <p-select [options]="filterOptions['alcoholic']" formControlName="alcoholic" [placeholder]="placeholders['alcoholic']" optionLabel="name" [showClear]="true"></p-select>
                 </div>
               </form>
             </div>
@@ -144,12 +152,11 @@
             <!-- Instructions under both -->
             <div class="instructions">
               <form [formGroup]="selectedForm">
-                <p-floatlabel variant="on">
-                  <textarea pTextArea id="instructions-text" formControlName="instructions" rows="5" cols="30" style="resize: none" class="instructions-textarea"></textarea>
-                  <label for="on_label">Instructions</label>
-                </p-floatlabel>
+                  <label for="instructions-text">Instructions</label>
+                  <textarea pTextArea id="instructions-text" formControlName="instructions" rows="5" cols="30"></textarea>
               </form>
             </div>
+
             <div class="create-button">
               <p-button label="Create" icon="pi pi-check" (click)="createCocktail()" ></p-button>
               <p-button label="Clear all" icon="pi pi-times" (click)="clearAll()"severity="secondary" ></p-button>
