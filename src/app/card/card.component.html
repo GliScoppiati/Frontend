@@ -8,89 +8,12 @@
         <lib-profile-button></lib-profile-button>
       </div>
     </div>
-    <div class="cocktail-pin">
-      <h2 class="cocktail-name">{{ cocktailInfo.name }}</h2>
-
-      <p-card class="cocktail-card" [style]="{ overflow: 'hidden' }">
-        <div class="card-content">
-          <!-- Left: Image -->
-          <div class="image-side">
-            <p-button class="favorite-btn" [icon]="isFavorite ? 'pi pi-heart-fill' : 'pi pi-heart'" (click)="manageFavorite(cocktailInfo.id);">
-
-            </p-button>
-            <div class="image-wrapper">
-              <p-image
-                alt="Cocktail"
-                class="image-card"
-                [src]="cocktailInfo.image"
-                width="450"
-              ></p-image>
-
-            </div>
-          </div>
-
-          <!-- Right: Info in 2 columns + instructions below -->
-          <div class="info-container">
-            <div class="top-info">
-              <!-- Ingredients -->
-              <div class="info-section ingredients">
-                <h3>Ingredients</h3>
-                <ul class="ingredient-list">
-                  <li *ngFor="let ingredient of cocktailInfo.ingredientsAndMeasures['ing']; let index = index">
-                    {{ displayIngredient(ingredient, index) }}
-                  </li>
-                </ul>
-              </div>
-
-              <!-- Categories -->
-              <div class="info-section categories">
-                <h3>Type</h3>
-                <p>{{ cocktailInfo.category }}</p>
-                <h3>Glass</h3>
-                <p>{{ cocktailInfo.glass }}</p>
-                <h3>Alcoholic</h3>
-                <p>{{ cocktailInfo.alcoholic }}</p>
-              </div>
-            </div>
-
-            <p-divider></p-divider>
-
-            <!-- Instructions under both -->
-             <!-- TODO: add only the original instruction of the drink (en for the imported) -->
-              <!-- TODO: and add a button "translate to" the language chosen from the user -->
-            <div class="instructions">
-              <h3>Instructions</h3>
-              <p-tabs value="0">
-                <p-tablist>
-                  <p-tab value="0">EN</p-tab>
-                  <p-tab value="1">FR</p-tab>
-                  <p-tab value="2">ES</p-tab>
-                  <p-tab value="3">DE</p-tab>
-                  <p-tab value="4">IT</p-tab>
-                </p-tablist>
-                <p-tabpanels>
-                  <p-tabpanel value="0">
-                    <p class="m-0">{{ cocktailInfo.instructions['en'] }}</p>
-                  </p-tabpanel>
-                  <p-tabpanel value="1">
-                    <p class="m-0">{{ cocktailInfo.instructions['fr'] || 'Not available' }}</p>
-                  </p-tabpanel>
-                  <p-tabpanel value="2">
-                    <p class="m-0">{{ cocktailInfo.instructions['es'] || 'Not available' }}</p>
-                  </p-tabpanel>
-                  <p-tabpanel value="3">
-                    <p class="m-0">{{ cocktailInfo.instructions['de'] || 'Not available' }}</p>
-                  </p-tabpanel>
-                  <p-tabpanel value="4">
-                    <p class="m-0">{{ cocktailInfo.instructions['it'] || 'Not available' }}</p>
-                  </p-tabpanel>
-                </p-tabpanels>
-              </p-tabs>
-            </div>
-          </div>
-        </div>
-      </p-card>
-    </div>
+    <shared-cocktail-card
+    *ngIf="cocktailInfo.id"
+    [cocktail]="cocktailInfo"
+    [isFavorite]="isFavoriteCocktail"
+    (favoriteToggled)="manageFavorites()"
+    ></shared-cocktail-card>
   </div>
   <div class="history-carousel" *ngIf="history.length > 0">
     <h3 class="carousel-title">Recently Viewed</h3>

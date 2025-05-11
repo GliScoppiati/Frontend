@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { PrimeNG } from 'primeng/config';
 import { NgFor } from '@angular/common';
 import { delay, firstValueFrom, Observable } from 'rxjs';
 import { CardModule } from 'primeng/card';
+import { Toast } from 'primeng/toast';
 import { trigger, state, transition, style, animate } from '@angular/animations';
 import { AuthService, LeftButtonsComponent, ProfileButtonComponent } from 'shared';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-home',
@@ -20,10 +22,15 @@ import { AuthService, LeftButtonsComponent, ProfileButtonComponent } from 'share
       animate('1000ms ease-out', style({opacity: 0})),
     ]),
   ])],
-  imports: [NgFor, CommonModule, CardModule, LeftButtonsComponent, ProfileButtonComponent],
+  imports: [
+    NgFor, CommonModule, CardModule,
+    LeftButtonsComponent, ProfileButtonComponent,
+    Toast
+  ],
   standalone: true,
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
+  styleUrl: './home.component.scss',
+  providers: [MessageService]
 })
 export class HomeComponent implements OnInit {
   firstTitle: string = 'Find the perfect cocktail for';
@@ -37,7 +44,6 @@ export class HomeComponent implements OnInit {
   currentTitle: string = this.titles[0];
   titleIndex: number = 0;
 
-  isLoggedIn$: any;
   allImages: string[][] = [];
   currentImages: string[] = [];
   showImages: boolean[] = [];
@@ -49,13 +55,13 @@ export class HomeComponent implements OnInit {
   profileButtonTag = 'Profilo';
   cocktailImgs: Set<string> = new Set();
 
-  constructor(private http: HttpClient,
-              private primeng: PrimeNG,
-              private authService: AuthService) { }
+  constructor(
+    private http: HttpClient,
+    private primeng: PrimeNG,
+  ) { }
 
   ngOnInit(): void {
-    this.isLoggedIn$ = this.authService.loggedIn$;
-    console.log('isLoggedIn$', this.isLoggedIn$);
+
     this.primeng.ripple.set(true); // to initialize primeng
 
     this.pickAllDrinks().then((groupedImages) => {
@@ -121,15 +127,5 @@ export class HomeComponent implements OnInit {
       this.showImages = this.showImages.map(() => true);
     }, 50);
   }
-
-
-
-  // rotateContent(): void {
-  //   this.titleIndex = (this.titleIndex + 1) % this.titles.length;
-  //   this.currentTitle = this.titles[this.titleIndex];
-
-  //   const imgIndex = this.titleIndex % this.allImages.length;
-  //   this.currentImages = this.allImages[imgIndex] || [];
-  // }
 
 }

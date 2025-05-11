@@ -1,5 +1,6 @@
 <ng-container *ngIf="userIsLogged(); else notLoggedIn">
-
+  <p-toast position="top-center" />
+  <p-confirmDialog />
   <div class="profile-page">
     <div class="top-bar">
       <div class="left-section">
@@ -46,7 +47,7 @@
 
       <!-- Content Display -->
       <div class="content-wrapper">
-        <!-- DETAILS -->
+        <!-- * DETAILS -->
         <p-card *ngIf="selectedMenu === 'details'" header="Your Profile Details" class="details-card">
           <form [formGroup]="profileForm" class="details-form">
 
@@ -79,6 +80,32 @@
             </div>
 
             <div class="form-group">
+              <p-button severity="secondary" label="Change password" (click)="passwordDialog = true"></p-button>
+              <p-dialog header="Change password" [(visible)]="passwordDialog" [modal]="true" [style]="{ width: '400px' }">
+                <form [formGroup]="passwordForm">
+                  <div class="password-group">
+                    <p-float-label variant="on">
+                      <p-password id="old-password" formControlName="oldPassword" [toggleMask]="true"></p-password>
+                      <label for="old-password">Current password</label>
+                    </p-float-label>
+                    <p-float-label variant="on">
+                      <p-password id="new-password" formControlName="newPassword" [toggleMask]="true" ></p-password>
+                      <label for="new-password">New password</label>
+                    </p-float-label>
+                    <p-float-label variant="on">
+                      <p-password id="confirm-password" formControlName="confirmPassword" [toggleMask]="true" class="password"></p-password>
+                      <label for="confirm-password">Confirm password</label>
+                    </p-float-label>
+                  </div>
+                  <div class="password-btn">
+                    <p-button label="Cancel" (click)="passwordDialog = false" severity="secondary"></p-button>
+                    <p-button label="Confirm" (click)="changePassword()" severity="success"></p-button>
+                  </div>
+                </form>
+              </p-dialog>
+            </div>
+
+            <div class="form-group">
               <p-float-label variant="on">
                 <input pInputText id="username" formControlName="username" />
                 <label for="username"><strong>Username</strong></label>
@@ -88,13 +115,13 @@
           </form>
 
           <div class="changes-btn">
-            <p-button label="Delete profile" (click)="deleteAccount()" severity="danger"></p-button>
+            <p-button label="Delete profile" (click)="confirm1($event)" severity="danger"></p-button>
             <p-button label="Discard changes" (click)="discardChanges()" severity="secondary"></p-button>
             <p-button label="Save changes" (click)="saveChanges()" severity="success"></p-button>
           </div>
         </p-card>
 
-        <!-- FAVORITES -->
+        <!-- * FAVORITES -->
         <div *ngIf="selectedMenu === 'favorites'" class="favorites-grid">
           <p-card
           *ngFor="let card of paginatedFavorites"
@@ -123,16 +150,12 @@
                 class="fav-button"
                 [icon]="card.isFavorite ? 'pi pi-heart-fill' : 'pi pi-heart'"
                   [style]="{ color: 'red' }"
-                  (click)="manageFavorite(card.id); card.isFavorite = !card.isFavorite"
+                  (click)="manageFavorite(card.id)"
                   styleClass="w-full"
                   [severity]="'secondary'"
                 ></p-button>
               </div>
             </ng-template>
-
-            <!-- <ng-template #footer> -->
-              <!-- Optional footer content -->
-            <!-- </ng-template> -->
           </p-card>
 
           <p *ngIf="favorites.length === 0" class="no-fav-message">
@@ -144,32 +167,46 @@
           <p-paginator (onPageChange)="onPageChange($event)" [first]="first" [rows]="rows" [totalRecords]="favorites.length" [rowsPerPageOptions]="rowsPerPageOptions" />
         </div>
 
-        <!-- SUBMITTED -->
+        <!-- * SUBMITTED -->
         <div class="submitted-grid" *ngIf="selectedMenu === 'submitted'">
-          <p-card *ngFor="let card of paginatedSubmissions" [style]="{ width: '300px', overflow: 'hidden' }">
+          <p-card *ngFor="let card of paginatedSubmissions; let index = index" [style]="{ width: '350px', overflow: 'hidden' }">
             <ng-template #header>
-                <p-image
+              <p-image
                 alt="Cocktail card"
                 class="image-card"
                 [src]="card.image"
                 [style]="{ cursor: 'pointer' }"
-                width="300"
+                width="350"
                 height="auto"
                 [preview]="true"
-                (click)="card.status === 'Accepted' && displayCardPage(card.id)"
+                (click)="card.status === 'Approved' ? displayCardPage(card.name) : ''"
               >
                 <ng-template #indicator>
-                  <i class="card-indicator">Open</i>
+                  <i class="card-indicator" [textContent]="'Open'"></i>
                 </ng-template>
               </p-image>
             </ng-template>
 
             <ng-template #title>
               <div class="title-container">
-                <span>{{ card.name }}</span>
-                <span>{{ card.status }}</span>
+                <div class="title-title-container">
+                  <span>{{ card.name }}</span>
+                </div>
+                <p-tag
+                [severity]="card.status === 'Rejected' ? 'danger' : (card.status === 'Approved' ? 'success' : 'info')"
+                >{{ card.status }}</p-tag>
+                <div class="title-btn">
+                  <p-button label="Edit" severity="info" (click)="editSubmission(card.id, index)"></p-button>
+                  <p-button label="Delete" severity="danger" (click)="confirmDelete($event, card.id)"></p-button>
+                </div>
               </div>
             </ng-template>
+
+            <p-dialog header="Edit your submission" [(visible)]="submissionDialog[index]" [modal]="true" [style]="{ 'max-width': '1800px', width: '100%' }" [closable]="true">
+              <app-cocktail-create-form
+              (submitForm)="handleSubmit($event, card.id)">
+              </app-cocktail-create-form>
+            </p-dialog>
 
           </p-card>
 
@@ -178,11 +215,11 @@
           </p>
         </div>
 
-        <div class="paginator" *ngIf="submitted.length > 5 && selectedMenu === 'submitted'">
+        <div class="paginator" *ngIf="submitted.length > 6 && selectedMenu === 'submitted'">
           <p-paginator (onPageChange)="onPageChange($event)" [first]="first" [rows]="rows" [totalRecords]="submitted.length" [rowsPerPageOptions]="rowsPerPageOptions" />
         </div>
 
-        <!-- PRIVACY AND DATA -->
+        <!-- * PRIVACY AND DATA -->
         <div class="privacy">
           <p-card *ngIf="selectedMenu === 'privacy'" header="Privacy and Data" class="privacy-card">
             <p>Manage your privacy settings here.</p>
@@ -223,7 +260,7 @@
             </form>
 
             <div class="changes-btn">
-              <p-button label="Delete Account" (click)="deleteAccount()" severity="danger"></p-button>
+              <p-button label="Delete profile" (click)="confirm1($event)" severity="danger"></p-button>
               <p-button label="Discard Changes" (click)="discardChanges()" severity="secondary"></p-button>
               <p-button label="Save Changes" (click)="saveChanges()" severity="success"></p-button>
             </div>

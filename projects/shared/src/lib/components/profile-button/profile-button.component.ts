@@ -111,23 +111,25 @@ export class ProfileButtonComponent implements OnInit {
     // TODO: add translation as gpt suggested, create the json files for translation
     this.items = [
       {
-        label: 'Details',
-        icon: 'pi pi-fw pi-user',
+        label: 'Privacy and data',
+        icon: 'pi pi-fw pi-cog',
         command: () => {
-          this.router.navigate(['/profile']);
+          this.router.navigate(['/profile'], { queryParams: { section: 'privacy' } });
         }
       },
       {
-        label: 'Settings',
-        icon: 'pi pi-fw pi-cog',
-        url: '/profile/settings',
-        // TODO: learn how to add settings to the url from a button on the profile page
-        //   this.router.navigate(['/profile/settings']);
+        label: 'Favorites',
+        icon: 'pi pi-fw pi-star',
+        command: () => {
+          this.router.navigate(['/profile'], { queryParams: { section: 'favorites' } });
+        }
       },
       {
-        label: 'Favourites',
-        icon: 'pi pi-fw pi-star',
-        url: '/profile/favourites',
+        label: 'Cocktails submitted',
+        icon: 'pi pi-fw pi-check',
+        command: () => {
+          this.router.navigate(['/profile'], { queryParams: { section: 'submitted' } });
+        }
       },
       {
         label: 'Privacy',
@@ -169,6 +171,7 @@ export class ProfileButtonComponent implements OnInit {
         }
       }
     ];
+
   }
 
 
@@ -211,11 +214,25 @@ export class ProfileButtonComponent implements OnInit {
       } else {
         this.visibles['isLoggedIn'] = true;
       }
+
+      if (this.authService.isAdmin()) {
+        this.items.unshift({
+          label: 'Admin',
+          icon: 'pi pi-fw pi-user',
+          command: () => {
+            this.router.navigate(['/admin']);
+          }
+        });
+      }
     }
     this.privacyForm = new FormGroup({
       privacyCheck: new FormControl<boolean>(false, Validators.requiredTrue),
       profilingCheck: new FormControl<boolean>(false)
     });
+  }
+
+  toProfile() {
+    this.router.navigate(['/profile']);
   }
 
   showPolicy() {

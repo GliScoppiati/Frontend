@@ -1,33 +1,36 @@
-<div class="top-nav">
-  <div class="left-section">
-    <!-- logo -->
-    <lib-left-buttons></lib-left-buttons>
-  </div>
-  <div class="center-section">
-  </div>
-  <div class="right-section">
-    <lib-profile-button></lib-profile-button>
-  </div>
-</div>
+<div class="home-page">
+  <p-toast position="top-center" />
 
-<div class="title-container">
-  <h1 class="title">{{firstTitle}} </h1>
-</div>
-
-<div class="slider">
-
-  <div class="motion-container">
-    <h1 class="motion-title" [@fadeInOut]> {{ currentTitle }} </h1>
-  </div>
-
-  <div [@fadeInOut] class="set-of-images">
-    <div *ngFor="let img of currentImages" class="images">
-      <p-card class="p-m-2">
-        <img [src]="img" alt="Cocktail Image" class="p-image" />
-      </p-card>
+  <div class="top-nav">
+    <div class="left-section">
+      <lib-left-buttons></lib-left-buttons>
+    </div>
+    <div class="center-section">
+    </div>
+    <div class="right-section">
+      <lib-profile-button></lib-profile-button>
     </div>
   </div>
 
-  <div class="fade-bottom"></div>
+  <div class="title-container">
+    <h1 class="title">{{firstTitle}} </h1>
+  </div>
 
+  <div class="slider">
+
+    <div class="motion-container">
+      <h1 class="motion-title" [@fadeInOut]> {{ currentTitle }} </h1>
+    </div>
+
+    <div [@fadeInOut] class="set-of-images">
+      <div *ngFor="let img of currentImages" class="images">
+        <p-card class="p-m-2">
+          <img [src]="img" alt="Cocktail Image" class="p-image" />
+        </p-card>
+      </div>
+    </div>
+
+    <div class="fade-bottom"></div>
+
+  </div>
 </div>

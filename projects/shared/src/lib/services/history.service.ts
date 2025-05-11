@@ -1,29 +1,29 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
+import { HttpClient } from '@angular/common/http';
+import { SearchInput } from './../services/search.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HistoryService {
-  private history: string[] = [];
 
-  constructor(private authService: AuthService) { }
+  // * API
+  private cocktailAPI: string = 'http://localhost:5000/api/searchhistory';
+  private getUserHistoryAPI: string = 'http://localhost:5000/api/searchhistory/mine';
 
-  addToHistory(id: string): void {
-    if (this.authService.isLoggedIn() && this.authService.getProfiling()) {
-      console.log('Adding to history', id);
-      this.history.push(id);
-      localStorage.setItem('history', JSON.stringify(this.history));
-    }
+  constructor(private http: HttpClient) { }
+
+  getHistory(): any {
+    return this.http.get<any>(this.getUserHistoryAPI);
   }
 
-  getHistory(): string[] {
-    if (this.authService.isLoggedIn() && this.authService.getProfiling()) {
-      const history = localStorage.getItem('history');
-      if (history) {
-        this.history = JSON.parse(history);
-      }
-    }
-    return this.history;
+  addToHistory(filters: SearchInput[], action: string): any {
+    return this.http.post<any>(this.cocktailAPI, {
+      action: action,
+      filters: filters
+     });
   }
+
+
 }

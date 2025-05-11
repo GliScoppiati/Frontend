@@ -9,7 +9,9 @@ import { jwtDecode } from 'jwt-decode';
 export class AuthService {
   private backendAPI: string = 'http://localhost:5000/auth/api/auth/';
   private profileAPI: string = 'http://localhost:5000/userprofile/api/userprofile/';
-  private submissionsAPI: string = 'http://localhost:5000/submission/submissions/my';
+  private userSubmissionsAPI: string = 'http://localhost:5000/submission/submissions/my';
+  private adminSubmissionsAPI: string = 'http://localhost:5000/submission/admin/pending';
+  private changePasswordAPI: string = 'http://localhost:5000/auth/api/auth/change-password';
 
   private loggedIn = new BehaviorSubject<boolean>(this.isLoggedIn());
   loggedIn$ = this.loggedIn.asObservable();
@@ -57,25 +59,16 @@ export class AuthService {
     return this.http.get(`${this.profileAPI}${this.getUserId()}`);
   }
 
-  getSubmissions(): Observable<any> {
-    return this.http.get(`${this.submissionsAPI}`);
+  getUserData(): Observable<any> {
+    return this.http.get(`${this.backendAPI}me`);
   }
 
-  // TODO: wait for API to use
-  addToFavorites(cocktailId: string): Observable<any> {
-    const userId = this.getUserId();
-    return this.http.post(`${this.profileAPI}${userId}/favorites`, { cocktailId });
+  getUserSubmissions(): Observable<any> {
+    return this.http.get(`${this.userSubmissionsAPI}`);
   }
 
-  removeFromFavorites(cocktailId: string): Observable<any> {
-    const userId = this.getUserId();
-    return this.http.delete(`${this.profileAPI}${userId}/favorites/${cocktailId}`);
-  }
-
-  // TODO: update with the real API
-  getFavorites(): Observable<any> {
-    const userId = this.getUserId();
-    return this.http.get(`${this.profileAPI}${userId}/favorites`);
+  getPendingSubmissions(): Observable<any> {
+    return this.http.get(`${this.adminSubmissionsAPI}`);
   }
 
   saveTokens(JwtToken?: string, refreshToken?: string, userId?: string): void {
@@ -136,6 +129,23 @@ export class AuthService {
   isLoggedIn(): boolean {
     const JwtToken = this.getJwtToken();
     return !!JwtToken;
+  }
+
+  changePassword(oldPassword: string, newPassword: string): Observable<any> {
+    return this.http.put(`${this.changePasswordAPI}`, { currentPassword: oldPassword, newPassword: newPassword });
+  }
+
+  private checkAdmin(): boolean {
+    const JwtToken = this.getJwtToken();
+    if (JwtToken) {
+      const decoded: any = jwtDecode(JwtToken);
+      return decoded.role === 'Admin';
+    }
+    return false;
+  }
+
+  isAdmin(): boolean {
+    return this.checkAdmin();
   }
 
 

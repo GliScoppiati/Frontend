@@ -2,9 +2,6 @@
 <div class="buttons">
   <div class="firstButton">
     <p-button *ngIf="!visibles['isLoggedIn']" (click)="setLoginVisible()" [label]="loginButton" severity="primary">
-      <ng-template pTemplate="icon">
-        <i class="pi pi-user"></i>
-      </ng-template>
     </p-button>
     <p-dialog [header]="loginButton" [modal]="true" [(visible)]="visibles['loginDialogVisible']" (onHide)="resetForm()" [style]="{ width: '25rem' }" [contentStyle]="{ 'overflow': 'visible' }" [baseZIndex]="10000" [autoZIndex]="true">
       <span class="little-message">{{messages['login']}}</span>
@@ -118,8 +115,8 @@
       </div>
     </p-dialog>
   </div>
-  <div class="profileButton">
-    <p-split-button class="profile-menu" *ngIf="visibles['isLoggedIn']" label="Profile" [model]="items" />
+  <div class="profileButton" *ngIf="visibles['isLoggedIn']">
+    <p-split-button class="profile-menu" label="Profile" (onClick)="toProfile()" [model]="items" />
     <p-dialog
       header="Privacy Policy"
       [(visible)]="visibles['privacyDialogVisible']"

@@ -31,7 +31,7 @@
         <p-multiselect [options]="filterOptions['ingredients']" formControlName="ingredients" [placeholder]="placeholders['ingredients']" optionLabel="name" [displaySelectedLabel]="false" />
         <p-multiselect [options]="filterOptions['glass']" formControlName="glass" [placeholder]="placeholders['glass']" optionLabel="name" [displaySelectedLabel]="false" />
         <p-multiselect [options]="filterOptions['type']" formControlName="type" [placeholder]="placeholders['type']" optionLabel="name" [displaySelectedLabel]="false" />
-        <p-multiselect [options]="filterOptions['alcoholic']" formControlName="alcoholic" [placeholder]="placeholders['alcoholic']" optionLabel="name" [displaySelectedLabel]="false" />
+        <p-multiselect *ngIf="alcoholAllowed" [options]="filterOptions['alcoholic']" formControlName="alcoholic" [placeholder]="placeholders['alcoholic']" optionLabel="name" [displaySelectedLabel]="false" />
       </form>
     </p-floatlabel>
     <div class="combined-selected" >
@@ -67,9 +67,9 @@
               <span>{{ card.title }}</span>
               <p-button
                 class="fav-button"
-                [icon]="card.isFavorite ? 'pi pi-heart-fill' : 'pi pi-heart'"
+                [icon]="card.isFavorite === true ? 'pi pi-heart-fill' : 'pi pi-heart'"
                 [style]="{ color: 'red' }"
-                (click)="addToFavorite(card.id); card.isFavorite = !card.isFavorite"
+                (click)="manageFavorite(card)"
                 styleClass="w-full"
                 [severity]="'secondary'"
               />

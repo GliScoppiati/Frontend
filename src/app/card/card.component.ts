@@ -9,31 +9,13 @@ import { Card } from 'primeng/card';
 import { Divider } from 'primeng/divider';
 import { TabsModule } from 'primeng/tabs';
 import { CarouselModule } from 'primeng/carousel';
-import { AuthService, LeftButtonsComponent, ProfileButtonComponent, HistoryService } from 'shared';
-
-interface Cocktail {
-  id: string;
-  name: string;
-  image: string;
-  instructions: { [lang: string]: string };
-  ingredientsAndMeasures: { ing: string[], measure: string[] };
-  category: string;
-  glass: string;
-  alcoholic: string;
-}
-
-interface Ingredient {
-  id: string;
-  name: string;
-  quantity: string;
-}
+import { AuthService, LeftButtonsComponent, ProfileButtonComponent, HistoryService, SearchService, CocktailCardComponent, Cocktail, Ingredient, FavoritesService } from 'shared';
 
 @Component({
   selector: 'app-card',
   imports: [
     LeftButtonsComponent, ProfileButtonComponent, Button,
-    Dialog, NgIf, Image, Card, NgFor, Divider, TabsModule,
-    CarouselModule
+    Dialog, NgIf, TabsModule, CarouselModule, CocktailCardComponent
   ],
   standalone: true,
   templateUrl: './card.component.html',
@@ -50,22 +32,19 @@ export class CardComponent implements OnInit {
   dialogHeader: string = 'Cannot access to this page';
 
   // * favorites
-  isFavorite: boolean = false;
+  isFavoriteCocktail: boolean = false;
 
   // * cocktail variables
   cocktailInfo: Cocktail = {
     id: '',
     name: '',
     image: '',
-    instructions: {},
-    ingredientsAndMeasures: { ing: [], measure: [] },
+    instructions: '',
+    ingredientsAndMeasures: [],
     category: '',
     glass: '',
-    alcoholic: '',
+    alcoholic: false,
   };
-
-  // * backend API for cocktail info
-  cocktailUrl: string = 'https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=';
 
   constructor(
     private authService: AuthService,
@@ -73,6 +52,8 @@ export class CardComponent implements OnInit {
     private router: Router,
     private http: HttpClient,
     private historyService: HistoryService,
+    private searchService: SearchService,
+    private favoriteService: FavoritesService
   ) { }
 
   ngOnInit(): void {
@@ -121,53 +102,46 @@ export class CardComponent implements OnInit {
     return this.authService.isLoggedIn();
   }
 
-  getCocktail(cocktailId: string) {
-    console.log('cocktailId', cocktailId);
-    this.http.get<Cocktail>(this.cocktailUrl + cocktailId).subscribe((response: any) => {
-      console.log('response', response);
-      const cocktailData = response.drinks[0];
-      console.log('cocktailData', cocktailData);
-      this.cocktailInfo = {
-        id: cocktailData.idDrink,
-        name: cocktailData.strDrink,
-        image: cocktailData.strDrinkThumb,
-        instructions: {
-          en: cocktailData.strInstructions,
-          it: cocktailData.strInstructionsIT ? cocktailData.strInstructionsIT : '',
-          fr: cocktailData.strInstructionsFR ? cocktailData.strInstructionsFR : '',
-          de: cocktailData.strInstructionsDE ? cocktailData.strInstructionsDE : '',
-          es: cocktailData.strInstructionsES ? cocktailData.strInstructionsES : '',
-        },
-        ingredientsAndMeasures: {
-          ing: Array.from({ length: 15 }, (_, i) => cocktailData[`strIngredient${i + 1}`]).filter(Boolean),
-          measure: Array.from({ length: 15 }, (_, i) => cocktailData[`strMeasure${i + 1}`]).filter(Boolean),
-        },
-        category: cocktailData.strCategory,
-        glass: cocktailData.strGlass,
-        alcoholic: cocktailData.strAlcoholic ? 'Yes' : 'No',
-      };
-    });
+  private getCocktail(cocktailId: string) {
+    this.searchService.getSingleCocktail(cocktailId)
+      .subscribe((response: any) => {
+        this.cocktailInfo = {
+          id: response.cocktailId,
+          name: response.name,
+          image: response.imageUrl,
+          instructions: response.instructions,
+          ingredientsAndMeasures: response.ingredients
+            .map((item: any) => ({
+              id: item.ingredientId,
+              name: item.ingredientName,
+              originalQuantity: item.originalMeasure,
+              quantityValue: item.quantityValue,
+              measure: item.quantityUnit
+            })),
+          category: response.category,
+          glass: response.glass,
+          alcoholic: response.isAlcoholic
+        }
+        this.isFavoriteCocktail = this.favoriteService.isFavorite(this.cocktailInfo.id);
+      });
   }
 
-  displayIngredient(ingredient: string, index: number): string {
-    const measure = this.cocktailInfo.ingredientsAndMeasures.measure[index];
+  displayIngredient(ingredient: Ingredient, index: number): string {
+    const measure = ingredient.originalQuantity;
     if (!measure) {
-      return `${ingredient}  →  No measure`;
+      return `${ingredient.name}  →  No measure`;
     }
     return `${ingredient}  →  ${measure}`;
   }
 
-  manageFavorite(id: string) {
-    if (this.userIsLogged()) {
-      this.isFavorite = !this.isFavorite;
-    //   if (this.isFavorite) {
-    //     this.authService.addToFavorites(id);
-    //   } else {
-    //     this.authService.removeFromFavorites(id);
-    //   }
-    // } else {
-    //   this.visible = true;
-    }
+  isFavorite(id: string): boolean {
+    return this.favoriteService.isFavorite(id);
   }
+
+  manageFavorites() {
+    this.favoriteService.manageFavorites(this.cocktailInfo.id);
+    this.isFavoriteCocktail = !this.isFavoriteCocktail;
+  }
+
 
 }
