@@ -19,10 +19,21 @@ export class SearchService {
   private importFilterAPI = 'http://localhost:5000/search/cocktails/filters?filterType=';
   private randomCocktailAPI: string = 'http://localhost:5000/search/cocktails/random-images?count=';
 
+  private cocktailByCreatorAPI: string = 'http://localhost:5000/cocktail/by-creator';
+
+  private homeCocktailAPI: string = 'http://localhost:5000/import/public/cocktails/by-glass?glass=';
 
   constructor(
     private http: HttpClient
   ) { }
+
+  getHomeCocktails(glassType: string): Observable<any> {
+    return this.http.get(`${this.homeCocktailAPI}${glassType}`);
+  }
+
+  getCocktailByCreator(creatorId: string, cocktailName: string): Observable<any> {
+    return this.http.get(`${this.cocktailByCreatorAPI}?username=${creatorId}&name=${cocktailName}`);
+  }
 
   getRandomCocktails(count: number): Observable<any> {
     return this.http.get(`${this.randomCocktailAPI}${count}`);

@@ -7,25 +7,28 @@ import { NgFor } from '@angular/common';
 import { delay, firstValueFrom, Observable } from 'rxjs';
 import { CardModule } from 'primeng/card';
 import { Toast } from 'primeng/toast';
+import { SkeletonModule } from 'primeng/skeleton';
 import { trigger, state, transition, style, animate } from '@angular/animations';
-import { AuthService, LeftButtonsComponent, ProfileButtonComponent } from 'shared';
+import { AuthService, LeftButtonsComponent, ProfileButtonComponent, SearchService } from 'shared';
 import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-home',
-  animations: [trigger('fadeInOut', [
-    transition(':enter', [
-      style({opacity: 0}),
-      animate('1000ms ease-out', style({opacity: 1})),
-    ]),
-    transition(':leave', [
-      animate('1000ms ease-out', style({opacity: 0})),
-    ]),
-  ])],
+  animations: [
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'scale(0.95) translateY(20px)' }),
+        animate('400ms ease-out', style({ opacity: 1, transform: 'scale(1) translateY(0)' }))
+      ]),
+      transition(':leave', [
+        animate('300ms ease-in', style({ opacity: 0, transform: 'scale(0.95) translateY(20px)' }))
+      ]),
+    ])
+  ],
   imports: [
     NgFor, CommonModule, CardModule,
     LeftButtonsComponent, ProfileButtonComponent,
-    Toast
+    Toast, SkeletonModule,
   ],
   standalone: true,
   templateUrl: './home.component.html',
@@ -40,15 +43,23 @@ export class HomeComponent implements OnInit {
     'your happy hour',
     'your dinner with friends',
     'your romantic dinner',
-  ]
+  ];
+
+  glassTypes: string[] = [
+    'Highball glass',
+    'Cocktail glass',
+    'Old-fashioned glass',
+    'Champagne flute'
+  ];
+
+
   currentTitle: string = this.titles[0];
   titleIndex: number = 0;
 
   allImages: string[][] = [];
-  currentImages: string[] = [];
+  currentImages: { src: string; loaded: boolean }[] = [];
   showImages: boolean[] = [];
 
-  stringUrl = "https://www.thecocktaildb.com/api/json/v1/1/random.php";
   public images: Set<string> = new Set();
   imgSize: string[] = ['/small', '/medium', '/large'];
   accessButton = 'Accedi';
@@ -58,6 +69,7 @@ export class HomeComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private primeng: PrimeNG,
+    private searchService: SearchService,
   ) { }
 
   ngOnInit(): void {
@@ -66,7 +78,6 @@ export class HomeComponent implements OnInit {
 
     this.pickAllDrinks().then((groupedImages) => {
       this.allImages = groupedImages;
-      this.currentImages = this.allImages[0] || [];
 
       this.showImages = Array(this.currentImages.length).fill(false);
       setTimeout(() => {
@@ -81,51 +92,48 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  // ! this is temporary since we don't have a backend yet
-  // TODO: do the research to match the images with the title
   async pickAllDrinks(): Promise<string[][]> {
-    const promises: Promise<string | null>[] = [];
-    for (let i = 0; i < 20; i++) {
-      // TODO: Add api call to the backend
-      const promise = firstValueFrom(
-          this.http.get<{ drinks: { strDrinkThumb: string }[] }>(this.stringUrl)
-        ).then(response => {
-          if (response?.drinks?.[0]) {
-            return response.drinks[0].strDrinkThumb + this.imgSize[2];
-          }
-          return null;
-        });
-
-      promises.push(promise);
-    }
-
-    const all = await Promise.all(promises);
-    const validImgs = all.filter((img): img is string => img !== null);
-
     const grouped: string[][] = [];
-    for (let i = 0; i < validImgs.length; i++) {
-      grouped.push(validImgs.slice(i, i + 10));
-    }
 
-    console.log("Grouped images", grouped);
+    for (let glass of this.glassTypes) {
+      const response = await firstValueFrom(
+        this.searchService.getHomeCocktails(glass)
+        .pipe(
+          delay(1000) // Simulate network delay
+        )
+      ).catch((error) => {
+        console.error('Error fetching drinks:', error);
+        return [];
+      }
+      );
+
+      const images = response.map((drink: any) => drink.imageUrl).slice(0, 10);
+
+      grouped.push(images);
+    }
 
     return grouped;
   }
+
 
   rotateContent(): void {
     this.titleIndex = (this.titleIndex + 1) % this.titles.length;
     this.currentTitle = this.titles[this.titleIndex];
 
     const imgIndex = this.titleIndex % this.allImages.length;
-    this.currentImages = this.allImages[imgIndex] || [];
+    const selectedImages = this.allImages[imgIndex] || [];
 
-    // Trigger animation by resetting visibility
+    this.currentImages = selectedImages.map((img: string) => ({
+      src: img,
+      loaded: false
+    }));
+
     this.showImages = Array(this.currentImages.length).fill(false);
 
-    // Activate fade-in after small delay
     setTimeout(() => {
       this.showImages = this.showImages.map(() => true);
-    }, 50);
+    }, 300);
   }
+
 
 }

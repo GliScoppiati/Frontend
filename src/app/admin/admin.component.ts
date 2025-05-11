@@ -15,6 +15,8 @@ import { Card } from 'primeng/card';
 import { Paginator } from 'primeng/paginator';
 import { forkJoin } from 'rxjs';
 import { Toast } from 'primeng/toast';
+import { Divider } from 'primeng/divider';
+import { Panel } from 'primeng/panel';
 import { MessageModule } from 'primeng/message';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
@@ -82,7 +84,7 @@ interface UserProfile {
     LeftButtonsComponent, ProfileButtonComponent,
     TagModule, Image, FloatLabel, ReactiveFormsModule,
     InputText, Card, Paginator, Toast, ConfirmDialog,
-    MessageModule
+    MessageModule, Divider, Panel,
    ],
   standalone: true,
   templateUrl: './admin.component.html',
@@ -423,7 +425,6 @@ export class AdminComponent implements OnInit {
                 this.http.post(`${this.forceLogoutAPI}${userId}`, {})
                   .subscribe({
                     next: () => {
-                      console.log('User deleted and logged out successfully');
                       this.refreshList();
                     },
                     error: (err) => {
@@ -482,21 +483,36 @@ export class AdminComponent implements OnInit {
   }
 
   importSubmissionIngredients(): void {
-    // ? need a body?
-    this.adminService.importNewIngredients().subscribe({
+    const bodyArray: { ingredientId: string; name: string; proposedName: string }[] = [];
+
+    this.adminService.getIngredientImport().subscribe({
       next: (res: any) => {
-        console.log('Submission ingredients imported', res);
+        res.forEach((ingredient: any) => {
+          bodyArray.push({
+            ingredientId: ingredient.ingredientId,
+            name: ingredient.name,
+            proposedName: ingredient.proposedName
+          });
+        });
+
+        this.adminService.importNewIngredients(bodyArray).subscribe({
+          next: (res: any) => {
+          },
+          error: (err) => {
+            console.error('Error importing submission ingredients', err);
+          }
+        });
       },
       error: (err) => {
-        console.error('Error importing submission ingredients', err);
+        console.error('Error getting ingredient import', err);
       }
     });
   }
 
+
   importIngredients(): void {
     this.adminService.importIngredients().subscribe({
       next: (res: any) => {
-        console.log('Ingredients imported', res);
       },
       error: (err) => {
         console.error('Error importing ingredients', err);
@@ -507,7 +523,6 @@ export class AdminComponent implements OnInit {
   importCocktails(): void {
     this.adminService.importCocktails().subscribe({
       next: (res: any) => {
-        console.log('Cocktails imported', res);
       },
       error: (err) => {
         console.error('Error importing cocktails', err);
@@ -518,7 +533,6 @@ export class AdminComponent implements OnInit {
   importCocktailsWithIngredients(): void {
     this.adminService.importIngredientsMap().subscribe({
       next: (res: any) => {
-        console.log('Cocktails with ingredients imported', res);
       },
       error: (err) => {
         console.error('Error importing cocktails with ingredients', err);
@@ -529,7 +543,6 @@ export class AdminComponent implements OnInit {
   importAll(): void {
     this.adminService.importAll().subscribe({
       next: (res: any) => {
-        console.log('All imported', res);
       },
       error: (err) => {
         console.error('Error importing all', err);
@@ -540,7 +553,6 @@ export class AdminComponent implements OnInit {
   reloadSearchDatabase(): void {
     this.adminService.reloadSearchDb().subscribe({
       next: (res: any) => {
-        console.log('Search database reloaded', res);
       },
       error: (err) => {
         console.error('Error reloading search database', err);

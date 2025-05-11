@@ -131,7 +131,7 @@ export class CocktailCreateFormComponent implements OnInit {
       this.filterOptions['glass'] = res.map(item => ({ name: item.name }));
     });
     this.http.get<any>(`${this.ingredientAPI}`).subscribe(res => {
-      this.filterOptions['ingredients'] = res.map((item: any) => ({id: item.ingredientId, name: item.ingredient }));
+      this.filterOptions['ingredients'] = res.map((item: any) => ({id: item.ingredientId, name: item.name }));
     });
     this.http.get<{ name: string }[]>(`${this.importFilterAPI}alcoholic`).subscribe(res => {
       this.filterOptions['alcoholic'] = res.map(item => ({

@@ -10,6 +10,8 @@ export class FavoritesService {
 
   private FavoritesAPI: string = 'http://localhost:5000/favoritecocktails/api/favorites/mine';
   private favoritesAPI: string = 'http://localhost:5000/favoritecocktails/api/favorites';
+  private recommendedAPI: string = 'http://localhost:5000/favoritecocktails/api/favorites/recommended';
+  private mostLikedAPI: string = 'http://localhost:5000/favoritecocktails/api/favorites/global/popular?top=10';
 
   constructor(
     private http: HttpClient
@@ -21,6 +23,26 @@ export class FavoritesService {
     this.http.get<any[]>(`${this.FavoritesAPI}`).subscribe((res) => {
       this.favorites = new Set(res.map(fav => fav.cocktailId));
     });
+  }
+
+  getRecommendedCocktails(): Observable<any> {
+    return this.http.get(`${this.recommendedAPI}`).pipe(
+      map((response: any) => response.map((item: any) => ({
+        id: item.cocktailId,
+        name: item.name,
+        image: item.imageUrl
+      })))
+    );
+  }
+
+  getMostLikedCocktails(): Observable<any> {
+    return this.http.get(`${this.mostLikedAPI}`).pipe(
+      map((response: any) => response.map((item: any) => ({
+        id: item.cocktailId,
+        name: item.name,
+        image: item.imageUrl
+      })))
+    );
   }
 
   getUserFavorites(): Observable<any> {

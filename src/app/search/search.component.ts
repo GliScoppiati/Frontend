@@ -188,7 +188,6 @@ export class SearchComponent implements OnInit {
         isFavorite: this.isFavorite(item.cocktailId)
       }));
 
-      this.historyService.addToHistory(this.SearchInput.filters, 'search');
       this.displayResults();
     });
   }

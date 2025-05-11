@@ -11,6 +11,11 @@ import { TabsModule } from 'primeng/tabs';
 import { CarouselModule } from 'primeng/carousel';
 import { AuthService, LeftButtonsComponent, ProfileButtonComponent, HistoryService, SearchService, CocktailCardComponent, Cocktail, Ingredient, FavoritesService } from 'shared';
 
+interface Recommended {
+  id: string;
+  likes: number;
+};
+
 @Component({
   selector: 'app-card',
   imports: [
@@ -23,7 +28,9 @@ import { AuthService, LeftButtonsComponent, ProfileButtonComponent, HistoryServi
 })
 export class CardComponent implements OnInit {
 
-  history: string[] = [];
+  randomCocktails: { id: string, name: string, image: string}[] = [];
+  recommendedCocktails: Recommended[] = [];
+  recommended: { id: string, name: string, image: string, likes: number}[] = [];
 
   responsiveOptions: any[] | undefined;
 
@@ -58,9 +65,34 @@ export class CardComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      console.log('params', params);
       this.cocktailInfo.id = params['cocktailId'];
     });
+
+    this.searchService.getRandomCocktails(15)
+      .subscribe((response: any) => {
+        this.randomCocktails = response.map((item: any) => ({
+          id: item.cocktailId,
+          name: item.name,
+          image: item.imageUrl
+        }));
+      });
+
+  this.favoriteService.getRecommendedCocktails()
+    .subscribe((response: Recommended[]) => {
+    this.recommendedCocktails = response;
+    this.recommendedCocktails.forEach((item: Recommended) => {
+      this.searchService.getSingleCocktail(item.id)
+      .subscribe((cocktail: any) => {
+        this.recommended.push({
+        id: cocktail.cocktailId,
+        name: cocktail.name,
+        image: cocktail.imageUrl,
+        likes: item.likes
+        });
+      });
+    });
+    console.log(this.recommended);
+  });
 
     // * call the cocktail API
     this.getCocktail(this.cocktailInfo.id);
@@ -88,9 +120,6 @@ export class CardComponent implements OnInit {
           numScroll: 1
       }
     ];
-
-    this.history = this.historyService.getHistory();
-
 
   }
 
@@ -136,6 +165,15 @@ export class CardComponent implements OnInit {
 
   isFavorite(id: string): boolean {
     return this.favoriteService.isFavorite(id);
+  }
+
+  goToCocktail(cocktailId: string) {
+    this.router.navigate([], {
+      queryParams: { cocktailId: cocktailId },
+      queryParamsHandling: 'merge'
+    }).then(() => {
+      window.location.reload();
+    });
   }
 
   manageFavorites() {

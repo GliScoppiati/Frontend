@@ -15,31 +15,33 @@
     (favoriteToggled)="manageFavorites()"
     ></shared-cocktail-card>
   </div>
-  <div class="history-carousel" *ngIf="history.length > 0">
-    <h3 class="carousel-title">Recently Viewed</h3>
+  <div class="history-carousel" *ngIf="randomCocktails.length > 0 || recommendedCocktails.length > 0">
+    <h3 class="carousel-title">Most loved</h3>
     <p-carousel
-      [value]="history"
-      [numVisible]="3"
+      [value]="recommendedCocktails.length > 0 ? recommendedCocktails : randomCocktails"
+      [numVisible]="5"
       [numScroll]="3"
       [circular]="true"
       [responsiveOptions]="responsiveOptions"
       [autoplayInterval]="3000"
     >
-      <ng-template let-cocktail #item>
-        <div class="history-item border border-surface-200 dark:border-surface-700 rounded m-2 p-4">
-          <div class="mb-4">
-            <div class="relative mx-auto">
-              <img
-                [src]="cocktail.image"
-                [alt]="cocktail.name"
-                class="w-full rounded-xl"
-              />
-            </div>
+    <ng-template let-cocktail #item>
+      <div class="carousel-card">
+        <div class="carousel-image-container">
+          <div class="carousel-image-wrapper">
+            <img
+              [src]="cocktail.image"
+              [alt]="cocktail.name"
+              class="carousel-image"
+              (click)="goToCocktail(cocktail.id)"
+            />
           </div>
-          <div class="text-center font-medium">{{ cocktail.name }}</div>
         </div>
-      </ng-template>
-    </p-carousel>
+        <div class="carousel-name">{{ cocktail.name }}</div>
+      </div>
+    </ng-template>
+  </p-carousel>
+
   </div>
 
 </ng-container>

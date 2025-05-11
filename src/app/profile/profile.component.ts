@@ -302,8 +302,8 @@ export class ProfileComponent implements OnInit {
       isAlcoholic: form.value.alcoholic.name === 'Alcoholic',
       imageUrl: form.value.image,
       ingredients: form.value.ingredientsList.map((ing: any) => ({
-        ingredientId: ing.id || null,
-        proposedName: ing.name,
+        ingredientId: ing.id.id || ing.id || null,
+        proposedName: ing.id.name || ing.name,
         quantity: ing.quantity.includes(ing.measure.name) ? ing.quantity : `${ing.quantity} ${ing.measure.name}`
       }))
     };
@@ -394,9 +394,14 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  displayCardPage(id: string) {
-    this.historyService.addToHistory([{ filterType: 'cocktail', filterName: id }], 'search');
-    this.router.navigate(['/card'], { queryParams: { cocktailId: id} });
+  displayCardPage(name: string) {
+    const userId = this.authService.getUserId();
+    this.searchService.getCocktailByCreator(userId!, name)
+      .subscribe((response: any) => {
+        const cocktailId = response.cocktailId;
+        this.historyService.addToHistory([{ filterType: 'cocktail', filterName: cocktailId }], 'search');
+        this.router.navigate(['/card'], { queryParams: { cocktailId: cocktailId } });
+      });
   }
 
   userIsLogged(): boolean {

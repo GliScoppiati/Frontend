@@ -65,6 +65,8 @@ export class CreateComponent implements OnInit {
       return;
     }
 
+    console.log('Form submitted:', form.value);
+
     const payload = {
       name: form.value.name,
       instructions: form.value.instructions,
@@ -73,13 +75,13 @@ export class CreateComponent implements OnInit {
       isAlcoholic: form.value.alcoholic.name === 'Alcoholic',
       imageUrl: form.value.image,
       ingredients: form.value.ingredientsList.map((ing: any) => ({
-        ingredientId: ing.id || null,
-        proposedName: ing.id ? null : ing.name,
-        quantity: ing.quantity.includes(ing.measure.name)
-          ? ing.quantity
-          : `${ing.quantity} ${ing.measure.name}`
+        ingredientId: ing.id.id || ing.id || null,
+        proposedName: ing.id.name || ing.name,
+        quantity: ing.quantity.includes(ing.measure.name) ? ing.quantity : `${ing.quantity} ${ing.measure.name}`
       }))
     };
+
+    console.log('Payload:', payload);
 
     this.http.post(this.submissionAPI, payload, { observe: 'response' }).subscribe({
       next: () => {

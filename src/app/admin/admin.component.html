@@ -303,55 +303,50 @@
 
           <!-- * DATABASE MANAGEMENT -->
           <div class="db-management-section" *ngIf="selectedMenu === 'dbManagement'">
+            <p-panel header="Database Management Instructions" toggleable>
+              <p>
+                Follow these steps to manage the cocktail database:
+                <ol>
+                  <li>Import the full DB from backup file.</li>
+                  <li>Add new ingredients from user submissions.</li>
+                  <li>Import data from external cocktail service.</li>
+                  <li>Reload the DB to update the search engine.</li>
+                </ol>
+            </p-panel>
 
-            <!-- * First -> action on imoportDB calls to importDB and statusTask -->
-            <!-- * Second -> Action on submissionDB calls to ImportIngredient -->
-            <!-- * Third -> Action on cocktailDB calls to importIngredients, ImportCocktail and ImportMap and ImportAll -->
-            <!-- * Fourth -> Action on search engine calls to Reload -->
-            <div class="instructions-database">
-              <p-message severity="info" >
-                Instructions for DB management: <br>
-                1. Import the DB from the backup file. <br>
-                2. Import the new ingredients from cocktail submissions. <br>
-                3. Import ingredients, cocktails and ingredient map from cocktail service. <br>
-                4. Import All: ingredients, cocktails and ingredient map from cocktail service. <br>
-                5. Reload Database: reload the search DB after adding cocktails submitted or when reconnecting to webApp! <br>
-              </p-message>
-            </div>
-            <div class="all-btn">
-              <div class="db-btn">
-                <p-message severity="info">
-                  Import the DB from the backup file. It takes up to 20 minutes. <br>
-                  This will override the current DB with the new one!
-                </p-message>
-                <p-button label="Import Database" (click)="importDB()" severity="warn"></p-button>
-                <p-button label="Status" (click)="getStatusTask(); statusDialog = true" severity="info"></p-button>
-                <p-dialog header="Status Database import" [(visible)]="statusDialog" [modal]="true" [style]="{width: 'width', minWidth: 'minWidth'}">
-                  {{ statusResponse.status }} <br>
-                  {{ statusResponse.startedAt | date: 'mediumDate' }} <br>
-                  {{ statusResponse.completedAt | date: 'mediumDate' }} <br>
-                  {{ statusResponse.insertedCount }} <br>
-                </p-dialog>
-                <p-message severity="info">
-                  Import the new ingredients from cocktail submissions. <br>
-                  This will override the current DB with the new one!
-                </p-message>
-                <p-button label="Import submission ingredients" [disabled]="!(statusResponse.status === 'Completed')" (click)="importSubmissionIngredients()" severity="warn"></p-button>
+            <p-divider type="solid">Step 1: Import Backup DB</p-divider>
+            <p-message severity="warn" text="This will override the current database. It may take up to 20 minutes." />
+            <p-button label="Import Database" icon="pi pi-upload" (click)="importDB()" severity="danger" />
+            <p-button label="Check Status" icon="pi pi-info-circle" (click)="getStatusTask(); statusDialog = true" severity="info" />
+
+            <p-dialog header="Import Status" [(visible)]="statusDialog" [modal]="true" [style]="{width: '400px'}">
+              <div *ngIf="statusResponse">
+                <p>Status: {{ statusResponse.status }}</p>
+                <p>Started: {{ statusResponse.startedAt | date: 'medium' }}</p>
+                <p>Completed: {{ statusResponse.completedAt | date: 'medium' }}</p>
+                <p>Records inserted: {{ statusResponse.insertedCount }}</p>
               </div>
-              <div class="cocktail-service-import-btn">
-                <p-message severity="info">
-                  Import ingredients, cocktails and ingredient map from cocktail service. <br>
-                  This will override the current DB with the new one!
-                </p-message>
-                <p-button label="Import ingredients" (click)="importIngredients()" severity="warn"></p-button>
-                <p-button label="Import cocktails" (click)="importCocktails()" severity="warn"></p-button>
-                <p-button label="Import ingredient map" (click)="importCocktailsWithIngredients()" severity="warn"></p-button>
-                <p-button label="Import All" severity="warn" (click)="importAll()"></p-button>
-                <p-message severity="info" text="Reload the search DB after adding cocktails submitted or when reconnecting to webApp!"></p-message>
-                <p-button label="Reload Database" (click)="reloadSearchDatabase()" severity="warn"></p-button>
-              </div>
+            </p-dialog>
+
+            <p-divider type="solid">Step 2: Import Submission Ingredients</p-divider>
+            <p-message severity="info" text="This will load all the ingredients in the search engine." />
+            <p-button label="Import Submission Ingredients" icon="pi pi-plus-circle"
+                      (click)="importSubmissionIngredients()" severity="warn" />
+
+            <p-divider type="solid">Step 3: Cocktail Service Import</p-divider>
+            <p-message severity="info" text="You can choose to import each type or all at once." />
+            <div class="cocktail-service-buttons">
+              <p-button label="Import Ingredients" icon="pi pi-database" (click)="importIngredients()" severity="help" />
+                <p-button label="Import Cocktails" icon="pi pi-database" (click)="importCocktails()" severity="help" />
+              <p-button label="Import Ingredient Map" icon="pi pi-map" (click)="importCocktailsWithIngredients()" severity="help" />
+              <p-button label="Import All" icon="pi pi-cloud-download" (click)="importAll()" severity="danger" />
             </div>
+
+            <p-divider type="solid">Step 4: Reload Search DB</p-divider>
+            <p-message severity="info" text="Use this after importing to update the search engine." />
+            <p-button label="Reload Database" icon="pi pi-refresh" (click)="reloadSearchDatabase()" severity="success" />
           </div>
+
 
         </div>
       </div>

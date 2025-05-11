@@ -134,9 +134,22 @@
 
 .db-management-section {
   display: flex;
-  max-width: 1400px;
   flex-direction: column;
+  gap: 2rem;
+  padding: 1rem;
+
+  .cocktail-service-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  ::ng-deep .p-button {
+    min-width: 200px;
+  }
 }
+
 
 .instructions-database {
   display: flex;

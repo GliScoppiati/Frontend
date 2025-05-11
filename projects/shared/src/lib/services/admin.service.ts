@@ -28,6 +28,9 @@ export class AdminService {
   // * change Role
   private changeRoleAPI: string = 'http://localhost:5000/auth/api/admin/change-role';
 
+  // * ingredient import API
+  private ingredientImportAPI: string = 'http://localhost:5000/cocktail/ingredients';
+
   constructor(
     private http: HttpClient
   ) { }
@@ -41,9 +44,18 @@ export class AdminService {
     return this.http.get(`${this.statusImportAPI}${taskId}`);
   }
 
-  // TODO: ask STE
-  importNewIngredients(): Observable<any> {
-    return this.http.post(`${this.importNewIngredientsAPI}`, {});
+  getIngredientImport(): Observable<any> {
+    return this.http.get(`${this.ingredientImportAPI}`);
+  }
+
+  importNewIngredients(body: { ingredientId: string; name: string; proposedName: string }[]): Observable<any> {
+    return this.http.post(`${this.importNewIngredientsAPI}`,
+      body.map((item: any) => ({
+        ingredientId: item.ingredientId,
+        name: item.name,
+        normalizedName: item.proposedName,
+      }))
+    );
   }
 
   importIngredients(): Observable<any> {
