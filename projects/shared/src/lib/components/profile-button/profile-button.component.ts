@@ -107,8 +107,6 @@ export class ProfileButtonComponent implements OnInit {
     });
 
     // * PROFILE BUTTON LIST
-    // TODO: finish this list
-    // TODO: add translation as gpt suggested, create the json files for translation
     this.items = [
       {
         label: 'Privacy and data',
@@ -154,6 +152,8 @@ export class ProfileButtonComponent implements OnInit {
                   life: 3000,
                   closable: true,
                 });
+                this.authService.clearTokens();
+                this.visibles['isLoggedIn'] = false;
                 this.router.navigate(['/home']);
               },
               error: (error: any) => {
@@ -166,8 +166,6 @@ export class ProfileButtonComponent implements OnInit {
                 });
               }
             });
-          this.authService.clearTokens();
-          this.visibles['isLoggedIn'] = false;
         }
       }
     ];
@@ -180,12 +178,20 @@ export class ProfileButtonComponent implements OnInit {
     if (this.authService.isLoggedIn()) {
       if (this.authService.isTokenExpired(this.authService.getJwtToken()!)) {
         if (this.authService.getRefreshToken()) {
-          console.log('Token expired, refreshing session');
           this.authService.refresh(this.authService.getRefreshToken()!)
           .subscribe({
               next: (response: any) => {
                 this.authService.saveTokens(response.token, response.refreshToken.toString());
                 this.visibles['isLoggedIn'] = true;
+                if (this.authService.isAdmin()) {
+                  this.items.unshift({
+                    label: 'Admin',
+                    icon: 'pi pi-fw pi-user',
+                    command: () => {
+                      this.router.navigate(['/admin']);
+                    }
+                  });
+                }
               },
               error: (error: any) => {
                 this.authService.clearTokens();
@@ -279,13 +285,11 @@ export class ProfileButtonComponent implements OnInit {
   sendLoginData() {
     if (this.loginForm.invalid)
       return this.showError();
-    console.log('Login data sent', this.loginForm.controls['email'].value, this.loginForm.controls['password'].value);
     this.authService.login(
       this.loginForm.controls['email'].value,
       this.loginForm.controls['password'].value)
       .subscribe({
         next: (response: any) => {
-          if (response) {
             this.router.navigate(['/home']);
             this.authService.saveTokens(response.token, response.refreshToken.toString(), response.userId);
             this.messageService.add({
@@ -296,20 +300,19 @@ export class ProfileButtonComponent implements OnInit {
               closable: true,
             });
             this.visibles['isLoggedIn'] = true;
-          }
+            this.setLoginVisible();
         },
         error: (error: any) => {
           console.error('Login failed', error);
           this.messageService.add({
             severity: 'error',
             summary: 'Login failed',
-            detail: error.error.message,
+            detail: 'Invalid credentials',
             life: 5000,
             closable: true,
           });
         }
       });
-    this.setLoginVisible();
   }
 
 
@@ -318,16 +321,6 @@ export class ProfileButtonComponent implements OnInit {
     if (this.registerForm.invalid)
       return this.showError();
     const birthDate = new Date(this.registerForm.controls['birthDate'].value);
-    console.log('Birth date', birthDate, this.isOver18(birthDate));
-    console.log('Register data sent', this.registerForm.controls['email'].value,
-        this.registerForm.controls['password'].value,
-        this.registerForm.controls['username'].value,
-        this.registerForm.controls['name'].value,
-        this.registerForm.controls['surname'].value,
-        birthDate,
-        this.isOver18(birthDate),
-        this.privacyForm.controls['privacyCheck'].value,
-        this.privacyForm.controls['profilingCheck'].value);
     // ! to comment for profile button check
     this.authService.register(
       this.registerForm.controls['username'].value,
@@ -335,8 +328,6 @@ export class ProfileButtonComponent implements OnInit {
       this.registerForm.controls['password'].value)
       .subscribe({
         next: (response: any) => {
-          if (response) {
-            console.log('User id is ', response.userId);
             this.authService.saveTokens(undefined, undefined, response.userId);
             // * Updating prrofile data when registering to fill the fields
             this.authService.updateProfile(
@@ -348,7 +339,6 @@ export class ProfileButtonComponent implements OnInit {
               this.privacyForm.controls['profilingCheck'].value)
               .subscribe({
                 next: () => {
-                  console.log('Profile updated successfully');
                   this.messageService.add({
                     severity: 'success',
                     summary: 'Profile registered',
@@ -356,6 +346,7 @@ export class ProfileButtonComponent implements OnInit {
                     life: 3000,
                     closable: true,
                   });
+                  this.setRegisterVisible();
                 },
                 error: (error: any) => {
                   console.error('Profile update failed', error);
@@ -368,7 +359,6 @@ export class ProfileButtonComponent implements OnInit {
                   });
                 }
               });
-          }
         },
         error: (error: any) => {
           console.error('Registration failed', error);
@@ -381,7 +371,6 @@ export class ProfileButtonComponent implements OnInit {
           });
         }
       });
-    this.setRegisterVisible();
   }
 
   isOver18(birthDate: Date): boolean {

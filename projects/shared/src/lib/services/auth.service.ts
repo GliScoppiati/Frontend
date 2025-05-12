@@ -46,12 +46,10 @@ export class AuthService {
   }
 
   logout(refreshToken: string): Observable<any> {
-    console.log('logout token', refreshToken);
     return this.http.post(`${this.backendAPI}logout`, { refreshToken });
   }
 
   refresh(refreshToken: string): Observable<any> {
-    console.log('refresh token', refreshToken);
     return this.http.post(`${this.backendAPI}refresh`, { refreshToken });
   }
 
@@ -132,7 +130,7 @@ export class AuthService {
   }
 
   changePassword(oldPassword: string, newPassword: string): Observable<any> {
-    return this.http.put(`${this.changePasswordAPI}`, { currentPassword: oldPassword, newPassword: newPassword });
+    return this.http.post(`${this.changePasswordAPI}`, { currentPassword: oldPassword, newPassword: newPassword });
   }
 
   private checkAdmin(): boolean {

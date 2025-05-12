@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService, AdminService, LeftButtonsComponent, ProfileButtonComponent, SearchService, SearchInput } from 'shared';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { AuthService, AdminService, LeftButtonsComponent, ProfileButtonComponent, SearchService, SearchInput, CocktailCreateFormComponent, StatsService } from 'shared';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -19,6 +19,7 @@ import { Divider } from 'primeng/divider';
 import { Panel } from 'primeng/panel';
 import { MessageModule } from 'primeng/message';
 import { ConfirmDialog } from 'primeng/confirmdialog';
+import { ChartModule } from 'primeng/chart';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
@@ -80,11 +81,11 @@ interface UserProfile {
 @Component({
   selector: 'app-admin',
   imports: [
-    Dialog, CommonModule, Button, TableModule,
+    Dialog, CommonModule, Button, TableModule, ChartModule,
     LeftButtonsComponent, ProfileButtonComponent,
     TagModule, Image, FloatLabel, ReactiveFormsModule,
     InputText, Card, Paginator, Toast, ConfirmDialog,
-    MessageModule, Divider, Panel,
+    MessageModule, Divider, Panel, CocktailCreateFormComponent
    ],
   standalone: true,
   templateUrl: './admin.component.html',
@@ -139,16 +140,36 @@ export class AdminComponent implements OnInit {
   // * users
   userProfiles: UserProfile[] = [];
 
+  // * edit cocktail
+  editSelectedForm!: FormGroup;
+  private editCocktailAPI: string = 'http://localhost:5000/cocktail/single/';
+
+  // * CHARTS
+  cocktailChartData: any;
+  glassChartData: any;
+  userChartData: any;
+  historyChartData: any;
+
+  chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top'
+      }
+    }
+  };
+
+
+
   // * SUBMISSION API
   private approveSubmissionAPI: string = 'http://localhost:5000/submission/admin/approve/';
   private rejectSubmissionAPI: string = 'http://localhost:5000/submission/admin/reject/';
 
   // * USER PROFILE API
   private userProfilesAPI: string = 'http://localhost:5000/userprofile/api/admin/profiles';
-  private userProfileStatsAPI: string = 'http://localhost:5000/userprofile/api/admin/stats';
 
   private userAPI: string = 'http://localhost:5000/auth/api/admin/users';
-  private userStatsAPI: string = 'http://localhost:5000/auth/api/admin/stats';
 
   private forceLogoutAPI: string = 'http://localhost:5000/auth/api/admin/force-logout/';
 
@@ -163,10 +184,21 @@ export class AdminComponent implements OnInit {
     private searchService: SearchService,
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
-    private adminService: AdminService
+    private adminService: AdminService,
+    private statService: StatsService
   ) {
     this.searchForm = this.formBuilder.group({
       filterName: '',
+    });
+
+    this.editSelectedForm = this.formBuilder.group({
+      name: ['', Validators.required],
+      image: ['', Validators.required],
+      ingredientsList: this.formBuilder.array([]),
+      glass: ['', Validators.required],
+      type: ['', Validators.required],
+      alcoholic: ['', Validators.required],
+      instructions: ['', Validators.required]
     });
   }
 
@@ -177,6 +209,10 @@ export class AdminComponent implements OnInit {
     this.searchBarChanges();
 
     this.getUserProfiles();
+
+    this.loadCocktailStats();
+    this.loadUserStats();
+    this.loadHistoryStats();
   }
 
   // * SUBMISSION FUNCTIONS ----------------
@@ -283,20 +319,69 @@ export class AdminComponent implements OnInit {
 
   // * COCKTAIL MANAGEMENT FUNCTIONS ----
 
+  handleSubmit(form: FormGroup, id: string): void {
+    if (form.invalid) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Please fill all required fields',
+        life: 3000
+      });
+      return;
+    }
+
+    const payload = {
+      name: form.value.name,
+      instructions: form.value.instructions,
+      glass: form.value.glass.name,
+      category: form.value.type.name,
+      isAlcoholic: form.value.alcoholic.name === 'Alcoholic',
+      imageUrl: form.value.image,
+      ingredients: form.value.ingredientsList.map((ing: any) => ({
+        proposedName: ing.id.name || ing.name,
+        quantity: ing.quantity.includes(ing.measure.name) ? ing.quantity : `${ing.quantity} ${ing.measure.name}`
+      }))
+    };
+
+    this.http.put(`${this.editCocktailAPI}${id}`, payload, { observe: 'response' }).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Cocktail submitted successfully! Redirecting to home...',
+          life: 3000
+        });
+        setTimeout(() => {
+          this.redirectHome();
+        }, 3000);
+      },
+      error: (err) => {
+        const messages: { [code: number]: string } = {
+          401: 'Unauthorized access',
+          400: 'Bad request - check your input'
+        };
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: messages[err.status] || 'Something went wrong',
+          life: 3000
+        });
+      }
+    });
+  }
+
   searchBarChanges(): void {
     this.searchForm.valueChanges
-    .pipe(
-      debounceTime(500),
-      distinctUntilChanged(),
-      filter((value => value.filterName && value.filterName.trim().length > 0))
-    )
-    .subscribe((value) => {
-      this.filters[0] = {
-        filterName: value.filterName,
-        filterType: 'cocktail'
-      };
-      this.searchService.searchCocktailsForAdmin(this.filters)
-        .subscribe((res: any) => {
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+      )
+      .subscribe((searchTerm: any) => {
+        this.searchService.searchCocktailsForAdmin({
+          filterType: 'cocktail',
+          filterName: searchTerm.filterName
+        }).subscribe((res: any) => {
           this.cocktailResults = res.map((cocktail: any) => ({
             id: cocktail.cocktailId,
             name: cocktail.name,
@@ -308,6 +393,7 @@ export class AdminComponent implements OnInit {
       });
   }
 
+
   onPageChange(event: any): void {
     this.first = event.first ?? 0;
     this.rows = event.rows ?? 10;
@@ -315,8 +401,19 @@ export class AdminComponent implements OnInit {
       this.paginatedResults = this.cocktailResults.slice(this.first, this.first + this.rows);
   }
 
-  editCocktail(cocktailId: string): void {
-
+  confirmDelete(cocktailId: string): void {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete this cocktail?',
+      header: 'Confirm Deletion',
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-secondary',
+      acceptLabel: 'Yes',
+      rejectLabel: 'No',
+      accept: () => {
+        this.deleteCocktail(cocktailId);
+      }
+    });
   }
 
   deleteCocktail(id: string): void {
@@ -324,11 +421,22 @@ export class AdminComponent implements OnInit {
       .subscribe({
         next: () => {
           this.searchBarChanges();
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Cocktail deleted successfully!',
+            life: 3000
+          });
         },
         error: (err) => {
-          console.error('Error deleting cocktail', err);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Cocktail already deleted or not found',
+            life: 3000
+          });
         }
-      })
+      });
   }
 
   // * ----------------------------------
@@ -378,7 +486,6 @@ export class AdminComponent implements OnInit {
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-secondary',
       accept: () => {
-        console.log('User banned', userId);
         this.deleteUser(userId);
       }
     });
@@ -448,9 +555,113 @@ export class AdminComponent implements OnInit {
 
   // * ----------------------------------
 
+  // * COCKTAIL STATS FUNCTIONS ---------
+
+  loadCocktailStats(): void {
+    this.statService.getPopularCocktails().subscribe((data: any) => {
+      this.cocktailChartData = {
+        labels: data.map((item: any) => item.cocktail), // ✅ fixed here
+        datasets: [
+          {
+            label: 'Popular Cocktails',
+            backgroundColor: '#42A5F5',
+            data: data.map((item: any) => item.count)
+          }
+        ]
+      };
+    });
+
+    this.statService.getPopularGlasses().subscribe((data: any) => {
+      this.glassChartData = {
+        labels: data.map((item: any) => item.glass),
+        datasets: [
+          {
+            label: 'Popular Glasses',
+            backgroundColor: ['#66BB6A', '#FFA726', '#26C6DA', '#FF6384'],
+            data: data.map((item: any) => item.count)
+          }
+        ]
+      };
+    });
+  }
+
+  // * TEST EXAMPLE DATA
+  // loadCocktailStats(): void {
+  //   const popularCocktails = [
+  //     { cocktail: 'Negroni', count: 5 },
+  //     { cocktail: 'Margarita', count: 3 },
+  //     { cocktail: 'Old Fashioned', count: 2 },
+  //     { cocktail: 'Spritz', count: 1 }
+  //   ];
+
+  //   const popularGlasses = [
+  //     { glass: 'Highball Glass', count: 6 },
+  //     { glass: 'Martini Glass', count: 4 },
+  //     { glass: 'Coupe Glass', count: 2 },
+  //     { glass: 'Old-Fashioned Glass', count: 1 }
+  //   ];
+
+  //   this.cocktailChartData = {
+  //     labels: popularCocktails.map(item => item.cocktail),
+  //     datasets: [
+  //       {
+  //         label: 'Popular Cocktails',
+  //         backgroundColor: '#42A5F5',
+  //         data: popularCocktails.map(item => item.count)
+  //       }
+  //     ]
+  //   };
+
+  //   this.glassChartData = {
+  //     labels: popularGlasses.map(item => item.glass),
+  //     datasets: [
+  //       {
+  //         label: 'Popular Glasses',
+  //         backgroundColor: ['#66BB6A', '#FFA726', '#26C6DA', '#FF6384'],
+  //         data: popularGlasses.map(item => item.count)
+  //       }
+  //     ]
+  //   };
+  // }
+
+
+
   // * USER STATS FUNCTIONS -------------
 
+  loadUserStats(): void {
+    this.statService.getUserStats().subscribe((data: any) => {
+      this.userChartData = {
+        labels: ['Active', 'Inactive'],
+        datasets: [
+          {
+            label: 'Users',
+            backgroundColor: ['#42A5F5', '#FF6384'],
+            data: [data.activeUsers, data.inactiveUsers]
+          }
+        ]
+      };
+    });
+  }
 
+  // * ----------------------------------
+
+  // * HISTORY STATS FUNCTIONS -----------
+
+  loadHistoryStats(): void {
+    this.statService.getPopularFilters().subscribe((data: any) => {
+      this.historyChartData = {
+        labels: data.map((item: any) => item.filterName),
+        datasets: [
+          {
+            label: 'Popular Search Filters',
+            borderColor: '#42A5F5',
+            fill: false,
+            data: data.map((item: any) => item.count)
+          }
+        ]
+      };
+    });
+  }
 
   // * ----------------------------------
 
@@ -460,9 +671,20 @@ export class AdminComponent implements OnInit {
     this.adminService.importDb().subscribe({
       next: (res: any) => {
         this.taskDatabaseId = res.taskId;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Database import started successfully! Check the status.',
+          life: 5000
+        });
       },
       error: (err) => {
-        console.error('Error importing database', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error importing database',
+          life: 3000
+        });
       }
     });
   }
@@ -483,7 +705,7 @@ export class AdminComponent implements OnInit {
   }
 
   importSubmissionIngredients(): void {
-    const bodyArray: { ingredientId: string; name: string; proposedName: string }[] = [];
+    const bodyArray: { ingredientId: string; name: string; normalizedName: string }[] = [];
 
     this.adminService.getIngredientImport().subscribe({
       next: (res: any) => {
@@ -491,31 +713,58 @@ export class AdminComponent implements OnInit {
           bodyArray.push({
             ingredientId: ingredient.ingredientId,
             name: ingredient.name,
-            proposedName: ingredient.proposedName
+            normalizedName: ingredient.proposedName // ✅ use the right property
           });
         });
-
         this.adminService.importNewIngredients(bodyArray).subscribe({
           next: (res: any) => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Ingredients imported successfully!',
+              life: 3000
+            });
           },
           error: (err) => {
-            console.error('Error importing submission ingredients', err);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Error importing ingredients',
+              life: 3000
+            });
           }
         });
       },
       error: (err) => {
-        console.error('Error getting ingredient import', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error fetching ingredients for import',
+          life: 3000
+        });
       }
     });
   }
 
 
+
   importIngredients(): void {
     this.adminService.importIngredients().subscribe({
       next: (res: any) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Ingredients imported successfully!',
+          life: 3000
+        });
       },
       error: (err) => {
-        console.error('Error importing ingredients', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error importing ingredients',
+          life: 3000
+        });
       }
     });
   }
@@ -523,9 +772,20 @@ export class AdminComponent implements OnInit {
   importCocktails(): void {
     this.adminService.importCocktails().subscribe({
       next: (res: any) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Cocktails imported successfully!',
+          life: 3000
+        });
       },
       error: (err) => {
-        console.error('Error importing cocktails', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error importing cocktails',
+          life: 3000
+        });
       }
     });
   }
@@ -533,9 +793,20 @@ export class AdminComponent implements OnInit {
   importCocktailsWithIngredients(): void {
     this.adminService.importIngredientsMap().subscribe({
       next: (res: any) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Cocktails with ingredients imported successfully!',
+          life: 3000
+        });
       },
       error: (err) => {
-        console.error('Error importing cocktails with ingredients', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error importing cocktails with ingredients',
+          life: 3000
+        });
       }
     });
   }
@@ -543,9 +814,20 @@ export class AdminComponent implements OnInit {
   importAll(): void {
     this.adminService.importAll().subscribe({
       next: (res: any) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'All data imported successfully!',
+          life: 3000
+        });
       },
       error: (err) => {
-        console.error('Error importing all', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error importing all data',
+          life: 3000
+        });
       }
     });
   }
@@ -553,11 +835,24 @@ export class AdminComponent implements OnInit {
   reloadSearchDatabase(): void {
     this.adminService.reloadSearchDb().subscribe({
       next: (res: any) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Search database reloaded successfully!',
+          life: 3000
+        });
       },
       error: (err) => {
-        console.error('Error reloading search database', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error reloading search database',
+          life: 3000
+        });
       }
     });
   }
+
+  // * ----------------------------------
 
 }

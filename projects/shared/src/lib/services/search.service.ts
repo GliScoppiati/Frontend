@@ -59,8 +59,10 @@ export class SearchService {
     return this.http.post(`${this.searchAPI}`, { filters: filters });
   }
 
-  searchCocktailsForAdmin(filters: any[]): Observable<any> {
-    console.log('filters', filters);
-    return this.http.post(`${this.searchAPI}`, {filters: filters}, );
+  searchCocktailsForAdmin(filter: SearchInput): Observable<any> {
+    return this.http.post(`${this.searchAPI}`, {
+      filters: [filter]  // ✅ wrap in array
+    });
   }
+
 }

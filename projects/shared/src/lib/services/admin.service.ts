@@ -48,14 +48,8 @@ export class AdminService {
     return this.http.get(`${this.ingredientImportAPI}`);
   }
 
-  importNewIngredients(body: { ingredientId: string; name: string; proposedName: string }[]): Observable<any> {
-    return this.http.post(`${this.importNewIngredientsAPI}`,
-      body.map((item: any) => ({
-        ingredientId: item.ingredientId,
-        name: item.name,
-        normalizedName: item.proposedName,
-      }))
-    );
+  importNewIngredients(body: { ingredientId: string; name: string; normalizedName: string }[]): Observable<any> {
+    return this.http.post(`${this.importNewIngredientsAPI}`, body);
   }
 
   importIngredients(): Observable<any> {

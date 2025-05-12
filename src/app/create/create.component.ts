@@ -65,7 +65,6 @@ export class CreateComponent implements OnInit {
       return;
     }
 
-    console.log('Form submitted:', form.value);
 
     const payload = {
       name: form.value.name,
@@ -80,8 +79,6 @@ export class CreateComponent implements OnInit {
         quantity: ing.quantity.includes(ing.measure.name) ? ing.quantity : `${ing.quantity} ${ing.measure.name}`
       }))
     };
-
-    console.log('Payload:', payload);
 
     this.http.post(this.submissionAPI, payload, { observe: 'response' }).subscribe({
       next: () => {

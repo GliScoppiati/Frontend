@@ -84,15 +84,15 @@
               <p-dialog header="Change password" [(visible)]="passwordDialog" [modal]="true" [style]="{ width: '400px' }">
                 <form [formGroup]="passwordForm">
                   <div class="password-group">
-                    <p-float-label variant="on">
+                    <p-float-label variant="in">
                       <p-password id="old-password" formControlName="oldPassword" [toggleMask]="true"></p-password>
                       <label for="old-password">Current password</label>
                     </p-float-label>
-                    <p-float-label variant="on">
+                    <p-float-label variant="in">
                       <p-password id="new-password" formControlName="newPassword" [toggleMask]="true" ></p-password>
                       <label for="new-password">New password</label>
                     </p-float-label>
-                    <p-float-label variant="on">
+                    <p-float-label variant="in">
                       <p-password id="confirm-password" formControlName="confirmPassword" [toggleMask]="true" class="password"></p-password>
                       <label for="confirm-password">Confirm password</label>
                     </p-float-label>

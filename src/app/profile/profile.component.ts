@@ -225,11 +225,12 @@ export class ProfileComponent implements OnInit {
     }
     this.authService.changePassword(
       this.passwordForm.value.oldPassword,
-      this.passwordForm.value.newPassword
+      this.passwordForm.value.confirmPassword
     ).subscribe({
       next: (response) => {
         this.passwordDialog = false;
         this.passwordForm.reset();
+        this.authService.refresh(this.authService.getRefreshToken()!);
         this.messageService.add({
           severity: 'success',
           summary: 'Success',

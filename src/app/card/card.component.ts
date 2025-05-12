@@ -91,7 +91,6 @@ export class CardComponent implements OnInit {
         });
       });
     });
-    console.log(this.recommended);
   });
 
     // * call the cocktail API

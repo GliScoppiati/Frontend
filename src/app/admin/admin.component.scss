@@ -121,6 +121,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  p-dialog header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 
 .cocktail-grid {
@@ -149,6 +155,30 @@
     min-width: 200px;
   }
 }
+
+.admin-section {
+  padding: 2rem;
+
+  .chart-section {
+    margin-bottom: 2rem;
+
+    h3 {
+      margin-bottom: 1rem;
+    }
+
+    .chart {
+      width: 100%;
+      max-width: 400px;
+      height: auto;
+    }
+  }
+
+  .no-data {
+    color: #999;
+    font-style: italic;
+  }
+}
+
 
 
 .instructions-database {

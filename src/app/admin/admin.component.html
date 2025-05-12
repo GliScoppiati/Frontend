@@ -1,5 +1,5 @@
 <ng-container *ngIf="isAdmin() && isLoggedIn(); else notAdmin">
-  <p-toast />
+  <p-toast position="top-center" />
   <p-confirmDialog />
   <div class="admin-page">
     <div class="top-bar">
@@ -156,14 +156,10 @@
                   </td>
                 </tr>
               </ng-template>
-
-              <ng-template pTemplate="footer">
-                Total submitted: {{ cocktailSubmissions.length || 0 }}
-              </ng-template>
             </p-table>
           </div>
 
-          <!-- *COCKTAIL MANAGEMENT -->
+          <!-- * COCKTAIL MANAGEMENT -->
           <div class="cocktail-manage-section" *ngIf="selectedMenu === 'cocktailManagement'">
             <form [formGroup]="searchForm" class="cocktail-manage-section">
 
@@ -203,17 +199,19 @@
                     <div class="footer-container">
                       <p-button
                       label="Edit"
-                      (click)="editCocktail(card.id); card.openDialog = true"
+                      (click)="card.openDialog = true"
                       [severity]="'info'"
                       ></p-button>
                       <p-button
                       class="del-button"
                       label="Delete"
-                      (click)="deleteCocktail(card.id)"
+                      (click)="confirmDelete(card.id)"
                       [severity]="'danger'"
                       ></p-button>
-                      <p-dialog header="header" [(visible)]="card.openDialog" [modal]="true" [closable]="true" [style]="{width: 'width', minWidth: 'minWidth', maxWidth: '1200px'}">
-                        content
+                      <p-dialog header="Edit the cocktail you selected" [(visible)]="card.openDialog" [modal]="true" [closable]="true" [style]="{ width: '100%', maxWidth: '1800px' }">
+                        <app-cocktail-create-form
+                        (submitForm)="handleSubmit($event, card.id)">
+                        </app-cocktail-create-form>
                       </p-dialog>
                     </div>
                   </ng-template>
@@ -293,13 +291,61 @@
           </div>
 
           <!-- * COCKTAIL STATISTICS -->
-          <div></div>
+          <div class="admin-section" *ngIf="selectedMenu === 'cocktailStatistics'">
+            <h2>Cocktail Statistics</h2>
+
+            <ng-container *ngIf="cocktailChartData?.labels?.length; else noStats">
+              <div class="chart-section">
+                <h3>Most Popular Cocktails</h3>
+                <p-chart type="bar" [data]="cocktailChartData" [options]="chartOptions" styleClass="chart"></p-chart>
+              </div>
+
+              <div class="chart-section">
+                <h3>Most Used Glass Types</h3>
+                <p-chart type="doughnut" [data]="glassChartData" [options]="chartOptions" styleClass="chart"></p-chart>
+              </div>
+            </ng-container>
+
+            <ng-template #noStats>
+              <h3>Statistics will be available once enough data has been collected.</h3>
+            </ng-template>
+          </div>
+
+
 
           <!-- * USER STATISTICS -->
-          <div></div>
+          <div class="admin-section" *ngIf="selectedMenu === 'userStatistics'">
+            <h2>User Statistics</h2>
+
+            <ng-container *ngIf="userChartData?.datasets?.[0]?.data?.length; else noUserData">
+              <div class="chart-section">
+                <h3>User Distribution</h3>
+                <p-chart type="pie" [data]="userChartData" [options]="chartOptions" styleClass="chart"></p-chart>
+              </div>
+            </ng-container>
+
+            <ng-template #noUserData>
+              <h3 class="no-data">Statistics will be available once enough user data has been collected.</h3>
+            </ng-template>
+          </div>
+
 
           <!-- * HISTORY STATISTICS -->
-          <div></div>
+          <div class="admin-section" *ngIf="selectedMenu === 'historyStats'">
+            <h2>Search History Statistics</h2>
+
+            <ng-container *ngIf="historyChartData?.datasets?.[0]?.data?.length; else noHistoryData">
+              <div class="chart-section">
+                <h3>Search Trends Over Time</h3>
+                <p-chart type="line" [data]="historyChartData" [options]="chartOptions" styleClass="chart"></p-chart>
+              </div>
+            </ng-container>
+
+            <ng-template #noHistoryData>
+              <h3 class="no-data">Statistics will be available once users start using the search feature more frequently.</h3>
+            </ng-template>
+          </div>
+
 
           <!-- * DATABASE MANAGEMENT -->
           <div class="db-management-section" *ngIf="selectedMenu === 'dbManagement'">
