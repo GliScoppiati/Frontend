@@ -87,8 +87,6 @@ export class SearchComponent implements OnInit {
   query: string = '';
   noResultsFound: boolean = false;
 
-  randomAPI: string = 'https://www.thecocktaildb.com/api/json/v1/1/random.php';
-
   constructor(
     private authService: AuthService,
     private http: HttpClient,
