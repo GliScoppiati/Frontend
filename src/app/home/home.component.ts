@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
@@ -9,7 +9,7 @@ import { CardModule } from 'primeng/card';
 import { Toast } from 'primeng/toast';
 import { SkeletonModule } from 'primeng/skeleton';
 import { trigger, state, transition, style, animate } from '@angular/animations';
-import { AuthService, LeftButtonsComponent, ProfileButtonComponent, SearchService } from 'shared';
+import { AuthService, LeftButtonsComponent, ProfileButtonComponent, SearchService } from '@shared/src/public-api';
 import { MessageService } from 'primeng/api';
 
 @Component({
@@ -66,10 +66,11 @@ export class HomeComponent implements OnInit {
   profileButtonTag = 'Profilo';
   cocktailImgs: Set<string> = new Set();
 
+  private searchService = inject<SearchService>(SearchService);
+
   constructor(
     private http: HttpClient,
     private primeng: PrimeNG,
-    private searchService: SearchService,
   ) { }
 
   ngOnInit(): void {

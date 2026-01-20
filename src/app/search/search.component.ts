@@ -1,22 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { FloatLabel } from 'primeng/floatlabel';
-import { InputText } from 'primeng/inputtext';
-import { InputIcon } from 'primeng/inputicon';
-import { IconField } from 'primeng/iconfield';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputIconModule } from 'primeng/inputicon';
+import { IconFieldModule } from 'primeng/iconfield';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
-import { Button } from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
 import { ChipModule } from 'primeng/chip';
-import { Dialog } from 'primeng/dialog';
+import { DialogModule } from 'primeng/dialog';
 import { ImageModule } from 'primeng/image';
 import { CardModule } from 'primeng/card';
 import { InputGroupModule } from 'primeng/inputgroup';
-import { FormsModule, FormGroup, FormControl, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, FormGroup, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService, ProfileButtonComponent, LeftButtonsComponent, HistoryService, SearchService, SearchInput, FavoritesService } from 'shared';
+import { AuthService, LeftButtonsComponent, HistoryService, SearchService, SearchInput, FavoritesService } from '@shared/src/public-api';
+import { ProfileButtonComponent } from '@shared/src/public-api';
 import { NgFor, NgIf } from '@angular/common';
-import { debounceTime, distinctUntilChanged, filter, forkJoin, map, Observable, switchMap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, map, Observable, switchMap } from 'rxjs';
 
 interface SearchResult {
   id: string;
@@ -32,10 +33,10 @@ interface Filter {
 @Component({
   selector: 'app-search',
   imports: [
-    ProfileButtonComponent, FloatLabel, InputText, NgIf,
-    IconField, InputIcon, FormsModule, ReactiveFormsModule,
-    MultiSelectModule, NgFor, Button, InputGroupModule,
-    ChipModule, Dialog, CardModule, PaginatorModule, LeftButtonsComponent,
+    ProfileButtonComponent, FloatLabelModule, InputTextModule, NgIf,
+    IconFieldModule, InputIconModule, FormsModule, ReactiveFormsModule,
+    MultiSelectModule, NgFor, ButtonModule, InputGroupModule,
+    ChipModule, DialogModule, CardModule, PaginatorModule, LeftButtonsComponent,
     ImageModule
   ],
   standalone: true,
@@ -86,16 +87,16 @@ export class SearchComponent implements OnInit {
 
   query: string = '';
   noResultsFound: boolean = false;
+  private authService = inject<AuthService>(AuthService);
+  private historyService = inject<HistoryService>(HistoryService);
+  private searchService = inject<SearchService>(SearchService);
+  private favoriteService = inject<FavoritesService>(FavoritesService);
 
   constructor(
-    private authService: AuthService,
     private http: HttpClient,
     private formBuilder: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
-    private historyService: HistoryService,
-    private searchService: SearchService,
-    private favoriteService: FavoritesService
   ) {
     this.searchForm = this.formBuilder.group({
       query: [''],
@@ -125,16 +126,16 @@ export class SearchComponent implements OnInit {
   }
 
   callApiLists(): void {
-    this.searchService.getCocktailIngredients().subscribe(res => {
+    this.searchService.getCocktailIngredients().subscribe((res: any[]) => {
       this.filterOptions['ingredients'] = res.map((item: any) => ({id: item.ingredientId, name: item.name }));
     });
-    this.searchService.getCocktailFilters('category').subscribe(res => {
+    this.searchService.getCocktailFilters('category').subscribe((res: any[]) => {
       this.filterOptions['type'] = res.map((item: any) => ({ name: item.name }));
     });
-    this.searchService.getCocktailFilters('glass').subscribe(res => {
+    this.searchService.getCocktailFilters('glass').subscribe((res: any[]) => {
       this.filterOptions['glass'] = res.map((item: any) => ({ name: item.name }));
     });
-    this.searchService.getCocktailFilters('alcoholic').subscribe(res => {
+    this.searchService.getCocktailFilters('alcoholic').subscribe((res: any[]) => {
       this.filterOptions['alcoholic'] = res.map((item: any) => ({
         name: item.name === 'true' ? 'Alcoholic' : 'Non Alcoholic'
       }));

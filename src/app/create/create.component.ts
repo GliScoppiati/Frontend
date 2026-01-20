@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { AuthService, LeftButtonsComponent, ProfileButtonComponent, CocktailCreateFormComponent } from 'shared';
+import { Component, inject, OnInit } from '@angular/core';
+import { AuthService, LeftButtonsComponent, ProfileButtonComponent, CocktailCreateFormComponent } from '@shared/src/public-api';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -32,9 +32,9 @@ export class CreateComponent implements OnInit {
   loginVisible: boolean = true;
 
   private submissionAPI = 'http://localhost:5000/submission/submissions';
+  private authService = inject<AuthService>(AuthService);
 
   constructor(
-    private authService: AuthService,
     private router: Router,
     private http: HttpClient,
     private messageService: MessageService

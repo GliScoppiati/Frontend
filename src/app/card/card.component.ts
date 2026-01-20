@@ -1,6 +1,6 @@
 import { NgIf, NgFor } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Button } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
@@ -9,7 +9,7 @@ import { Card } from 'primeng/card';
 import { Divider } from 'primeng/divider';
 import { TabsModule } from 'primeng/tabs';
 import { CarouselModule } from 'primeng/carousel';
-import { AuthService, LeftButtonsComponent, ProfileButtonComponent, HistoryService, SearchService, CocktailCardComponent, Cocktail, Ingredient, FavoritesService } from 'shared';
+import { AuthService, LeftButtonsComponent, ProfileButtonComponent, HistoryService, SearchService, CocktailCardComponent, Cocktail, Ingredient, FavoritesService } from '@shared/src/public-api';
 
 interface Recommended {
   id: string;
@@ -53,14 +53,16 @@ export class CardComponent implements OnInit {
     alcoholic: false,
   };
 
+  private authService = inject<AuthService>(AuthService);
+  private historyService = inject<HistoryService>(HistoryService);
+  private searchService = inject<SearchService>(SearchService);
+  private favoriteService = inject<FavoritesService>(FavoritesService);
+
+
   constructor(
-    private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpClient,
-    private historyService: HistoryService,
-    private searchService: SearchService,
-    private favoriteService: FavoritesService
   ) { }
 
   ngOnInit(): void {

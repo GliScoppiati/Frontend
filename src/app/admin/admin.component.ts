@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService, AdminService, LeftButtonsComponent, ProfileButtonComponent, SearchService, SearchInput, CocktailCreateFormComponent, StatsService } from 'shared';
+import { AuthService, AdminService, LeftButtonsComponent, ProfileButtonComponent, SearchService, SearchInput, CocktailCreateFormComponent, StatsService } from '@shared/src/public-api';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { TableModule } from 'primeng/table';
@@ -176,16 +176,18 @@ export class AdminComponent implements OnInit {
   // * COCKTAIL API JUST FOR ADMIN
   private cocktailAPI: string = 'http://localhost:5000/cocktail/single/';
 
+  private authService = inject<AuthService>(AuthService);
+  private searchService = inject<SearchService>(SearchService);
+  private adminService = inject<AdminService>(AdminService);
+  private statService = inject<StatsService>(StatsService);
+
+
   constructor(
-    private authService: AuthService,
     private router: Router,
     private http: HttpClient,
     private formBuilder: FormBuilder,
-    private searchService: SearchService,
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
-    private adminService: AdminService,
-    private statService: StatsService
   ) {
     this.searchForm = this.formBuilder.group({
       filterName: '',
@@ -511,7 +513,7 @@ export class AdminComponent implements OnInit {
       next: (res: any) => {
         this.refreshList();
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error changing user role', err);
       }
     });
@@ -678,7 +680,7 @@ export class AdminComponent implements OnInit {
           life: 5000
         });
       },
-      error: (err) => {
+      error: (err: any) => {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -698,7 +700,7 @@ export class AdminComponent implements OnInit {
           this.statusResponse.completedAt = res.completedAt;
           this.statusResponse.insertedCount = res.insertedCount;
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Error getting status task', err);
         }
       });
@@ -725,7 +727,7 @@ export class AdminComponent implements OnInit {
               life: 3000
             });
           },
-          error: (err) => {
+          error: (err: any) => {
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
@@ -735,7 +737,7 @@ export class AdminComponent implements OnInit {
           }
         });
       },
-      error: (err) => {
+      error: (err: any) => {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -758,7 +760,7 @@ export class AdminComponent implements OnInit {
           life: 3000
         });
       },
-      error: (err) => {
+      error: (err: any) => {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -779,7 +781,7 @@ export class AdminComponent implements OnInit {
           life: 3000
         });
       },
-      error: (err) => {
+      error: (err: any) => {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -800,7 +802,7 @@ export class AdminComponent implements OnInit {
           life: 3000
         });
       },
-      error: (err) => {
+      error: (err: any) => {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -821,7 +823,7 @@ export class AdminComponent implements OnInit {
           life: 3000
         });
       },
-      error: (err) => {
+      error: (err: any) => {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -842,7 +844,7 @@ export class AdminComponent implements OnInit {
           life: 3000
         });
       },
-      error: (err) => {
+      error: (err: any) => {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',

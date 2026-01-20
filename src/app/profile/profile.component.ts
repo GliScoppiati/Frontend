@@ -4,7 +4,7 @@ import { Card } from 'primeng/card';
 import { PanelModule } from 'primeng/panel';
 import { DatePicker } from 'primeng/datepicker';
 import { Image } from 'primeng/image';
-import { AuthService, HistoryService, LeftButtonsComponent, ProfileButtonComponent, CocktailCreateFormComponent, FavoritesService, SearchService } from 'shared';
+import { AuthService, HistoryService, LeftButtonsComponent, ProfileButtonComponent, CocktailCreateFormComponent, FavoritesService, SearchService } from '@shared/src/public-api';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Paginator, PaginatorState } from 'primeng/paginator';
@@ -150,9 +150,9 @@ export class ProfileComponent implements OnInit {
 
     // * get profile data
     this.authService.getUserProfileData().subscribe({
-      next: (response) => {
+      next: (response: { firstName: string; lastName: string; birthDate: string | number | Date; alcoholAllowed: boolean; consentProfiling: boolean; }) => {
         this.authService.getUserData().subscribe({
-          next: (userData) => {
+          next: (userData: { username: string; email: string; }) => {
             this.user.username = userData.username;
             this.user.email = userData.email;
             this.profileForm.patchValue({
@@ -170,18 +170,18 @@ export class ProfileComponent implements OnInit {
         // * set the user data to save them in case of discard changes
         this.user.firstName = response.firstName;
         this.user.lastName = response.lastName;
-        this.user.birthDate = response.birthDate;
+        this.user.birthDate = response.birthDate.toString();
         this.user.alcoholAllowed = response.alcoholAllowed;
         this.user.consentProfiling = response.consentProfiling;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error fetching user profile data', error);
       }
     });
 
     // * get user's submissions
     this.authService.getUserSubmissions().subscribe({
-      next: (response) => {
+      next: (response: any[]) => {
         this.submitted = response.map((submission: any) => ({
           id: submission.submissionId,
           name: submission.name,
@@ -190,7 +190,7 @@ export class ProfileComponent implements OnInit {
         }));
         this.paginatedSubmissions = this.submitted.slice(this.first, this.first + this.rows);
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error fetching user submissions', error);
       }
     });
@@ -227,7 +227,7 @@ export class ProfileComponent implements OnInit {
       this.passwordForm.value.oldPassword,
       this.passwordForm.value.confirmPassword
     ).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         this.passwordDialog = false;
         this.passwordForm.reset();
         this.authService.refresh(this.authService.getRefreshToken()!);
@@ -448,7 +448,7 @@ export class ProfileComponent implements OnInit {
           }
         });
       },
-      error: err => {
+      error: (err: any) => {
         console.error('Error fetching user favorites', err);
       }
     });
@@ -460,7 +460,7 @@ export class ProfileComponent implements OnInit {
         this.authService.clearTokens();
         this.router.navigate(['/home']);
       },
-      error: (error) => {
+      error: (error: { status: number; }) => {
         if (error.status === 404)
           console.error('Account not found', error);
         else
@@ -489,10 +489,10 @@ export class ProfileComponent implements OnInit {
       this.profileForm.value.consentProfiling
 
     ).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         this.redirectHome();
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error updating profile', error);
       }
     }
